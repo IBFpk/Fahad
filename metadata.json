@@ -1,0 +1,8 @@
+{
+  "name": "Fahad Electronics",
+  "description": "A modern electronics store catalog and management system for Fahad Electronics, featuring product search, WhatsApp integration, and a robust Firebase backend.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
