@@ -12,8 +12,10 @@ import { Admin } from './pages/Admin';
 import { ScrollToTop } from './components/ScrollToTop';
 
 export default function App() {
+  const basename = import.meta.env.DEV ? '/' : '/Fahad';
+  
   return (
-    <Router>
+    <Router basename={basename}>
       <ScrollToTop />
       <Layout>
         <Routes>
