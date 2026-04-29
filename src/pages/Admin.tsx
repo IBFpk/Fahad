@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { Product, Category } from '../types';
-import { Plus, Trash2, Loader2, Save, LogIn, LogOut, UserCheck, Camera, Pencil, X, MessageSquare, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, LogIn, LogOut, UserCheck, Camera, Pencil, X, MessageSquare, Settings as SettingsIcon, Megaphone, Sparkles, Flame, Info } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signInWithEmailAndPassword } from 'firebase/auth';
-import { settingsService, WhatsAppSettings } from '../services/settingsService';
+import { settingsService, WhatsAppSettings, PromotionSettings } from '../services/settingsService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Admin = () => {
@@ -38,6 +38,14 @@ export const Admin = () => {
     whatsappTemplate: ''
   });
 
+  const [promoSettings, setPromoSettings] = useState<PromotionSettings>({
+    active: false,
+    text: '',
+    type: 'info'
+  });
+
+  const [settingsTab, setSettingsTab] = useState<'whatsapp' | 'promo'>('whatsapp');
+
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecVal, setNewSpecVal] = useState('');
 
@@ -56,14 +64,16 @@ export const Admin = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [p, c, s] = await Promise.all([
+    const [p, c, s, promo] = await Promise.all([
       productService.getProducts(), 
       productService.getCategories(),
-      settingsService.getWhatsAppSettings()
+      settingsService.getWhatsAppSettings(),
+      settingsService.getPromotionSettings()
     ]);
     setProducts(p);
     setCategories(c);
     setWhatsappSettings(s);
+    setPromoSettings(promo);
     setLoading(false);
   };
 
@@ -228,7 +238,11 @@ export const Admin = () => {
   const handleSaveSettings = async () => {
     setLoading(true);
     try {
-      await settingsService.updateWhatsAppSettings(whatsappSettings);
+      if (settingsTab === 'whatsapp') {
+        await settingsService.updateWhatsAppSettings(whatsappSettings);
+      } else {
+        await settingsService.updatePromotionSettings(promoSettings);
+      }
       setShowSettings(false);
       alert("Settings saved successfully!");
     } catch (err) {
@@ -356,9 +370,21 @@ export const Admin = () => {
           <h1 className="text-3xl font-black text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-500 text-sm">Logged in as: <span className="font-semibold">{user.email}</span></p>
         </div>
-        <div className="flex flex-wrap gap-4 w-full md:w-auto">
+        <div className="flex flex-wrap gap-3 w-full md:w-auto">
           <button 
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => {
+              setSettingsTab('promo');
+              setShowSettings(true);
+            }}
+            className="flex items-center gap-2 bg-orange-50 text-orange-600 border border-orange-100 px-6 py-3 rounded-xl font-bold hover:bg-orange-100 transition-all shadow-sm"
+          >
+            <Megaphone size={20} /> Promotion
+          </button>
+          <button 
+            onClick={() => {
+              setSettingsTab('whatsapp');
+              setShowSettings(true);
+            }}
             className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all"
           >
             <SettingsIcon size={20} /> Settings
@@ -388,38 +414,116 @@ export const Admin = () => {
             <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"><X size={24} /></button>
             
             <h2 className="text-2xl font-black mb-6 flex items-center gap-3">
-              <MessageSquare className="text-brand-blue" /> WhatsApp Settings
+              <SettingsIcon className="text-brand-blue" /> Store Settings
             </h2>
 
-            <div className="space-y-6">
-              <div>
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">
-                  WhatsApp Number (with country code, no +)
-                </label>
-                <input 
-                  className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
-                  value={whatsappSettings.whatsapp}
-                  onChange={e => setWhatsappSettings({...whatsappSettings, whatsapp: e.target.value})}
-                  placeholder="923350237370"
-                />
-                <p className="text-[10px] text-gray-500 mt-1 uppercase font-bold">Example: 923001234567 for Pakistan</p>
-              </div>
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-6">
+              <button 
+                onClick={() => setSettingsTab('whatsapp')}
+                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'whatsapp' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+              >
+                WhatsApp
+              </button>
+              <button 
+                onClick={() => setSettingsTab('promo')}
+                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'promo' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+              >
+                Promo Banner
+              </button>
+            </div>
 
-              <div>
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Message Template</label>
-                <textarea 
-                  rows={8}
-                  className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
-                  value={whatsappSettings.whatsappTemplate}
-                  onChange={e => setWhatsappSettings({...whatsappSettings, whatsappTemplate: e.target.value})}
-                />
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="text-[9px] font-black text-gray-400 uppercase">Available Placeholders:</span>
-                  {['{{item_title}}', '{{price}}', '{{item_url}}', '{{image_url}}'].map(p => (
-                    <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-6">
+              {settingsTab === 'whatsapp' ? (
+                <>
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">
+                      WhatsApp Number (with country code, no +)
+                    </label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                      value={whatsappSettings.whatsapp}
+                      onChange={e => setWhatsappSettings({...whatsappSettings, whatsapp: e.target.value})}
+                      placeholder="923350237370"
+                    />
+                    <p className="text-[10px] text-gray-500 mt-1 uppercase font-bold">Example: 923001234567 for Pakistan</p>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Message Template</label>
+                    <textarea 
+                      rows={8}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
+                      value={whatsappSettings.whatsappTemplate}
+                      onChange={e => setWhatsappSettings({...whatsappSettings, whatsappTemplate: e.target.value})}
+                    />
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Available Placeholders:</span>
+                      {['{{item_title}}', '{{price}}', '{{item_url}}', '{{image_url}}'].map(p => (
+                        <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div>
+                      <h4 className="text-xs font-black text-gray-900 uppercase">Active Banner</h4>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase">Show banner on homepage</p>
+                    </div>
+                    <button 
+                      onClick={() => setPromoSettings({...promoSettings, active: !promoSettings.active})}
+                      className={`w-12 h-6 rounded-full transition-all relative ${promoSettings.active ? 'bg-brand-blue' : 'bg-gray-300'}`}
+                    >
+                      <motion.div 
+                        animate={{ x: promoSettings.active ? 26 : 2 }}
+                        className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                      />
+                    </button>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Promotion Type</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'sale', icon: Flame, label: 'Sale' },
+                        { id: 'new', icon: Sparkles, label: 'New' },
+                        { id: 'info', icon: Info, label: 'Info' }
+                      ].map(type => (
+                        <button
+                          key={type.id}
+                          onClick={() => setPromoSettings({...promoSettings, type: type.id as any})}
+                          className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${promoSettings.type === type.id ? 'border-brand-blue bg-blue-50 text-brand-blue' : 'border-gray-50 bg-gray-50 text-gray-400 opacity-60'}`}
+                        >
+                          <type.icon size={18} />
+                          <span className="text-[9px] font-black uppercase mt-1">{type.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Banner Text</label>
+                    <textarea 
+                      rows={3}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
+                      value={promoSettings.text}
+                      onChange={e => setPromoSettings({...promoSettings, text: e.target.value})}
+                      placeholder="Enter promotion text here..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Link URL (Optional)</label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                      value={promoSettings.link || ''}
+                      onChange={e => setPromoSettings({...promoSettings, link: e.target.value})}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </>
+              )}
 
               <button 
                 onClick={handleSaveSettings}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar } from './Navbar';
+import { PromoBanner } from './PromoBanner';
 import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { APP_VERSION } from '../constants';
@@ -7,7 +8,10 @@ import { APP_VERSION } from '../constants';
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <header>
+        <PromoBanner />
+        <Navbar />
+      </header>
       <main className="flex-grow">
         {children}
       </main>
