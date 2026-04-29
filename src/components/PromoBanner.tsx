@@ -39,7 +39,7 @@ export const PromoBanner = () => {
       >
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-grow justify-center">
-            <span className="hidden sm:inline-flex bg-white/20 p-1 rounded-lg">
+            <span className="flex bg-white/20 p-1 rounded-lg">
               {getIcon()}
             </span>
             <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-center">
