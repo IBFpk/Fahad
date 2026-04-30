@@ -85,7 +85,7 @@ export const ProductDetail = () => {
           >
             <div className="aspect-square bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-xl">
               <img
-                src={activeImage || 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=1200'}
+                src={activeImage || 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=1200'}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

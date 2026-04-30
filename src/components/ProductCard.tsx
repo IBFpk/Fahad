@@ -52,7 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
     >
       <Link to={`/product/${product.id}`} className="block relative aspect-square overflow-hidden bg-gray-100 italic">
         <img
-          src={product.image || 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&q=80&w=600'}
+          src={product.image || 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=600'}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
