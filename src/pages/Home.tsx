@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { productService } from '../services/productService';
+import { settingsService, WhatsAppSettings } from '../services/settingsService';
 import { Product, Category } from '../types';
 import { Search, SlidersHorizontal, Package, ArrowRight, Zap, ShieldCheck, Heart, ChevronDown, X, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -28,6 +29,7 @@ const sortLabels: Record<SortOption, string> = {
 export const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -36,12 +38,14 @@ export const Home = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const [prodRes, catRes] = await Promise.all([
+      const [prodRes, catRes, whatsappRes] = await Promise.all([
         productService.getProducts(),
-        productService.getCategories()
+        productService.getCategories(),
+        settingsService.getWhatsAppSettings()
       ]);
       setProducts(prodRes);
       setCategories(catRes);
+      setWhatsappSettings(whatsappRes);
       setLoading(false);
     };
     loadData();
@@ -303,7 +307,11 @@ export const Home = () => {
         ) : sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {sortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                whatsappSettings={whatsappSettings} 
+              />
             ))}
           </div>
         ) : (

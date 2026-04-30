@@ -5,13 +5,23 @@ import { ShoppingCart, Share2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
+import { settingsService, WhatsAppSettings } from '../services/settingsService';
+
 interface ProductCardProps {
   product: Product;
+  whatsappSettings?: WhatsAppSettings | null;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const whatsappMsg = `Hi Fahad Electronics, I'm interested in ${product.name} (Price: ${formatPrice(product.price)}). Is it available?`;
-  const whatsappUrl = getWhatsAppUrl("923350237370", whatsappMsg); // Using main number from card
+export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSettings }) => {
+  const whatsappMsg = whatsappSettings 
+    ? whatsappSettings.whatsappTemplate
+        .replace(/{{item_title}}/g, product.name)
+        .replace(/{{price}}/g, formatPrice(product.price))
+        .replace(/{{item_url}}/g, window.location.origin + `/product/${product.id}`)
+    : `Hi Fahad Electronics, I'm interested in ${product.name} (Price: ${formatPrice(product.price)}). Is it available?`;
+
+  const whatsappNumber = whatsappSettings?.whatsapp || "923350237370";
+  const whatsappUrl = getWhatsAppUrl(whatsappNumber, whatsappMsg);
 
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();

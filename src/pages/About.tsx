@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, ShieldCheck, Award, Users, ArrowRight } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { motion } from 'motion/react';
+import { settingsService, WhatsAppSettings } from '../services/settingsService';
 
 export const About = () => {
+  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
+
+  useEffect(() => {
+    settingsService.getWhatsAppSettings().then(setWhatsappSettings);
+  }, []);
+
   const businessHours = [
     { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
     { day: 'Tuesday', hours: '11:00 AM - 9:00 PM' },
@@ -115,7 +122,12 @@ export const About = () => {
               <p className="text-blue-100 text-sm mb-6 leading-relaxed">
                 We specialize in floor standing and cassette type air-conditioners for offices, halls, and large spaces. Contact our corporate manager directly.
               </p>
-              <a href="https://wa.me/923350237370" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-brand-blue px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors">
+              <a 
+                href={whatsappSettings ? `https://wa.me/${whatsappSettings.whatsapp}` : "https://wa.me/923350237370"} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 bg-white text-brand-blue px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors"
+              >
                 Contact Corporate Manager <ArrowRight size={18} />
               </a>
             </div>
