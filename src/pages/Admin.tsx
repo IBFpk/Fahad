@@ -216,6 +216,12 @@ export const Admin = () => {
 
     setLoading(true);
     try {
+      // Check if category exists in our local list, if not add it to DB
+      const categoryExists = categories.some(c => c.name.toLowerCase() === formData.category?.toLowerCase());
+      if (!categoryExists && formData.category) {
+        await productService.addCategory(formData.category);
+      }
+
       const dataToSave = { ...formData, specifications: finalSpecs };
       if (editingId) {
         await productService.updateProduct(editingId, dataToSave);

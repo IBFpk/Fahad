@@ -27,11 +27,19 @@ export const Home = () => {
   }, []);
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.brand?.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = p.name.toLowerCase().includes(query) || 
+                          (p.brand && p.brand.toLowerCase().includes(query)) ||
+                          p.category.toLowerCase().includes(query);
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Extract unique categories from products to ensure all used categories are shown
+  const allCategories = Array.from(new Set([
+    ...categories.map(c => c.name),
+    ...products.map(p => p.category)
+  ])).filter(Boolean);
 
   return (
     <div className="pb-20">
@@ -134,18 +142,18 @@ export const Home = () => {
           >
             All Products
           </button>
-          {categories.map((cat) => (
+          {allCategories.map((catName) => (
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.name)}
+              key={catName}
+              onClick={() => setSelectedCategory(catName)}
               className={cn(
                 "px-6 py-2.5 rounded-xl font-semibold transition-all border",
-                selectedCategory === cat.name 
+                selectedCategory === catName 
                   ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
                   : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
               )}
             >
-              {cat.name}
+              {catName}
             </button>
           ))}
         </div>
