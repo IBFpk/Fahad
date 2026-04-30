@@ -7,6 +7,8 @@ import { formatPrice, getWhatsAppUrl } from '../lib/utils';
 import { ShoppingCart, Share2, ArrowLeft, ShieldCheck, Zap, RotateCcw, PackageCheck } from 'lucide-react';
 import { motion } from 'motion/react';
 
+import ReactMarkdown from 'react-markdown';
+
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
@@ -131,9 +133,9 @@ export const ProductDetail = () => {
                   {product.inStock ? 'In Stock' : 'Out of Stock'}
                 </span>
               </div>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                {product.description}
-              </p>
+              <div className="markdown-body text-lg text-gray-600 leading-relaxed">
+                <ReactMarkdown>{product.description}</ReactMarkdown>
+              </div>
             </div>
 
             {/* Specifications */}

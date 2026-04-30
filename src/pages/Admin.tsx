@@ -574,8 +574,18 @@ export const Admin = () => {
               </div>
 
               <div>
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Description</label>
-                <textarea rows={4} className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest block">Description</label>
+                  <span className="text-[10px] text-brand-blue font-bold uppercase">Markdown Supported</span>
+                </div>
+                <textarea 
+                  rows={6} 
+                  className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none resize-none focus:ring-2 focus:ring-brand-blue transition-all" 
+                  value={formData.description} 
+                  onChange={e => setFormData({...formData, description: e.target.value})} 
+                  placeholder="Enter features... Use - for bullet points."
+                />
+                <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">Use line breaks for new paragraphs. Use `- feature` for bullet points.</p>
               </div>
             </div>
 
