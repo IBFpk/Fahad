@@ -8,7 +8,7 @@ import { APP_VERSION } from '../constants';
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col">
-      <header>
+      <header className="sticky top-0 z-50">
         <PromoBanner />
         <Navbar />
       </header>

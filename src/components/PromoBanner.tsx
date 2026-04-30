@@ -4,11 +4,17 @@ import { Megaphone, X, Sparkles, Flame, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const PromoBanner = () => {
-  const [settings, setSettings] = useState<PromotionSettings | null>(null);
+  const [settings, setSettings] = useState<PromotionSettings | null>(() => {
+    const cached = localStorage.getItem('promo_settings');
+    return cached ? JSON.parse(cached) : null;
+  });
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    settingsService.getPromotionSettings().then(setSettings);
+    settingsService.getPromotionSettings().then(newSettings => {
+      setSettings(newSettings);
+      localStorage.setItem('promo_settings', JSON.stringify(newSettings));
+    });
   }, []);
 
   if (!settings || !settings.active || !isVisible) return null;
