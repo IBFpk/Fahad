@@ -25,21 +25,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, whatsappMsg);
 
   const handleShare = async (e: React.MouseEvent) => {
-    const productUrl = window.location.href.split('#')[0] + '#/product/' + product.id;
+    const productUrl = window.location.origin + window.location.pathname + '#/product/' + product.id;
     e.preventDefault();
+    
+    const msg = (whatsappSettings?.shareTemplate || 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}')
+      .replace(/{{item_title}}/g, product.name)
+      .replace(/{{price}}/g, formatPrice(product.price))
+      .replace(/{{item_url}}/g, productUrl);
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: product.name,
-          text: product.description,
+          text: msg,
           url: productUrl,
         });
       } catch (err) {
         console.log("Sharing failed", err);
       }
     } else {
-      navigator.clipboard.writeText(productUrl);
-      alert("Link copied to clipboard!");
+      navigator.clipboard.writeText(`${msg}\n\n${productUrl}`);
+      alert("Details and link copied to clipboard!");
     }
   };
 

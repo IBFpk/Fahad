@@ -54,19 +54,27 @@ export const ProductDetail = () => {
     );
   }
 
-  const generateWhatsAppUrl = () => {
+  const generateWhatsAppUrl = (isShare = false) => {
     if (!product || !whatsappSettings) return '#';
     
-    let msg = whatsappSettings.whatsappTemplate;
+    let msg = isShare 
+      ? (whatsappSettings.shareTemplate || 'Check out this product: {{item_title}} - {{price}} {{item_url}}')
+      : whatsappSettings.whatsappTemplate;
+      
     msg = msg.replace(/{{item_title}}/g, product.name);
     msg = msg.replace(/{{price}}/g, formatPrice(product.price));
     msg = msg.replace(/{{item_url}}/g, window.location.href);
     msg = msg.replace(/{{image_url}}/g, product.image || '');
     
+    if (isShare) {
+      return `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+    }
+    
     return getWhatsAppUrl(whatsappSettings.whatsapp, msg);
   };
 
   const whatsappUrl = generateWhatsAppUrl();
+  const shareWhatsAppUrl = generateWhatsAppUrl(true);
 
   return (
     <div className="pb-20 pt-10">
@@ -174,28 +182,48 @@ export const ProductDetail = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-grow flex items-center justify-center gap-3 bg-brand-blue text-white px-8 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:shadow-blue-900/20 active:scale-[0.98] transition-all"
+                className="flex items-center justify-center gap-3 bg-brand-blue text-white px-8 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:shadow-blue-900/20 active:scale-[0.98] transition-all"
               >
                 <ShoppingCart size={24} /> Buy via WhatsApp
               </a>
-              <button 
-                 onClick={() => {
-                   if (navigator.share) {
-                     navigator.share({ title: product.name, url: window.location.href });
-                   } else {
-                     navigator.clipboard.writeText(window.location.href);
-                     alert("Link copied!");
-                   }
-                 }}
-                 className="px-8 py-5 border-2 border-gray-200 rounded-2xl hover:bg-gray-50 transition-all font-bold flex items-center justify-center gap-2"
-              >
-                <Share2 size={24} /> Share
-              </button>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <a 
+                  href={shareWhatsAppUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-green-500 text-green-600 rounded-2xl hover:bg-green-50 transition-all font-bold"
+                >
+                  <Share2 size={20} /> Share WhatsApp
+                </a>
+                <button 
+                  onClick={() => {
+                    const msg = (whatsappSettings?.shareTemplate || 'Check out this product: {{item_title}} - {{price}} {{item_url}}')
+                      .replace(/{{item_title}}/g, product.name)
+                      .replace(/{{price}}/g, formatPrice(product.price))
+                      .replace(/{{item_url}}/g, window.location.href);
+
+                    if (navigator.share) {
+                      navigator.share({ 
+                        title: product.name, 
+                        text: msg,
+                        url: window.location.href 
+                      });
+                    } else {
+                      navigator.clipboard.writeText(`${msg}\n\n${window.location.href}`);
+                      alert("Link and details copied!");
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 rounded-2xl hover:bg-gray-50 transition-all font-bold"
+                >
+                  <Share2 size={20} /> Other
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

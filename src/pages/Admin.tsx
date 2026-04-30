@@ -35,7 +35,8 @@ export const Admin = () => {
 
   const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings>({
     whatsapp: '',
-    whatsappTemplate: ''
+    whatsappTemplate: '',
+    shareTemplate: ''
   });
 
   const [promoSettings, setPromoSettings] = useState<PromotionSettings>({
@@ -455,16 +456,32 @@ export const Admin = () => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Message Template</label>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Buy Template (Contact Shop)</label>
                     <textarea 
-                      rows={8}
+                      rows={5}
                       className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
                       value={whatsappSettings.whatsappTemplate}
                       onChange={e => setWhatsappSettings({...whatsappSettings, whatsappTemplate: e.target.value})}
                     />
                     <div className="flex flex-wrap gap-2 mt-2">
-                      <span className="text-[9px] font-black text-gray-400 uppercase">Available Placeholders:</span>
-                      {['{{item_title}}', '{{price}}', '{{item_url}}', '{{image_url}}'].map(p => (
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Placeholders:</span>
+                      {['{{item_title}}', '{{price}}', '{{item_url}}'].map(p => (
+                        <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Share Template (Social Sharing)</label>
+                    <textarea 
+                      rows={5}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
+                      value={whatsappSettings.shareTemplate || ''}
+                      onChange={e => setWhatsappSettings({...whatsappSettings, shareTemplate: e.target.value})}
+                    />
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className="text-[9px] font-black text-gray-400 uppercase">Placeholders:</span>
+                      {['{{item_title}}', '{{price}}', '{{item_url}}'].map(p => (
                         <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
                       ))}
                     </div>
