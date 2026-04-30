@@ -2,9 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { productService } from '../services/productService';
 import { Product, Category } from '../types';
-import { Search, SlidersHorizontal, Package, ArrowRight, Zap, ShieldCheck, Heart } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Search, SlidersHorizontal, Package, ArrowRight, Zap, ShieldCheck, Heart, ChevronDown, X, ArrowUpDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
+
+type SortOption = 
+  | 'featured'
+  | 'az'
+  | 'za'
+  | 'price-low'
+  | 'price-high'
+  | 'date-new'
+  | 'date-old';
+
+const sortLabels: Record<SortOption, string> = {
+  featured: 'Featured',
+  az: 'Alphabetically, A-Z',
+  za: 'Alphabetically, Z-A',
+  'price-low': 'Price, low to high',
+  'price-high': 'Price, high to low',
+  'date-new': 'Date, new to old',
+  'date-old': 'Date, old to new'
+};
 
 export const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,6 +31,8 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,6 +54,25 @@ export const Home = () => {
                           p.category.toLowerCase().includes(query);
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'az':
+        return a.name.localeCompare(b.name);
+      case 'za':
+        return b.name.localeCompare(a.name);
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'date-new':
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      case 'date-old':
+        return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      default:
+        return 0; // Featured (original order)
+    }
   });
 
   // Extract unique categories from products to ensure all used categories are shown
@@ -126,8 +166,98 @@ export const Home = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            
+            {/* Sort Button */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsSortOpen(!isSortOpen)}
+                className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-2xl hover:border-brand-blue transition-all shadow-sm text-gray-600 font-semibold"
+              >
+                <ArrowUpDown size={20} />
+                <span className="hidden sm:inline">Sort by</span>
+                <ChevronDown size={16} className={cn("transition-transform", isSortOpen && "rotate-180")} />
+              </button>
+
+              {/* Desktop Sort Dropdown */}
+              <AnimatePresence>
+                {isSortOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 z-30 overflow-hidden hidden md:block"
+                  >
+                    {Object.entries(sortLabels).map(([key, label]) => (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setSortBy(key as SortOption);
+                          setIsSortOpen(false);
+                        }}
+                        className={cn(
+                          "w-full text-left px-5 py-3 hover:bg-gray-50 transition-colors text-sm font-medium",
+                          sortBy === key ? "text-brand-blue bg-blue-50/50" : "text-gray-600"
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Sort Bottom Sheet */}
+        <AnimatePresence>
+          {isSortOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsSortOpen(false)}
+                className="fixed inset-0 bg-black/40 z-[60] md:hidden"
+              />
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[32px] z-[70] md:hidden overflow-hidden pb-safe"
+              >
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-black uppercase tracking-wider text-gray-900">Sort By</h3>
+                    <button onClick={() => setIsSortOpen(false)} className="p-2 bg-gray-100 rounded-full">
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {Object.entries(sortLabels).map(([key, label]) => (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setSortBy(key as SortOption);
+                          setIsSortOpen(false);
+                        }}
+                        className={cn(
+                          "w-full text-left px-6 py-4 rounded-2xl transition-all font-semibold",
+                          sortBy === key 
+                            ? "bg-blue-50 text-brand-blue" 
+                            : "bg-white text-gray-600 hover:bg-gray-50"
+                        )}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Categories */}
         <div className="flex flex-wrap gap-3 mb-10">
@@ -170,9 +300,9 @@ export const Home = () => {
               </div>
             ))}
           </div>
-        ) : filteredProducts.length > 0 ? (
+        ) : sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((product) => (
+            {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
