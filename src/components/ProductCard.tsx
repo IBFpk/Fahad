@@ -13,30 +13,32 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSettings }) => {
-  const whatsappMsg = whatsappSettings 
+    const productUrl = window.location.href.split('#')[0] + '#/product/' + product.id;
+    const whatsappMsg = whatsappSettings 
     ? whatsappSettings.whatsappTemplate
         .replace(/{{item_title}}/g, product.name)
         .replace(/{{price}}/g, formatPrice(product.price))
-        .replace(/{{item_url}}/g, window.location.origin + `/product/${product.id}`)
-    : `Hi Fahad Electronics, I'm interested in ${product.name} (Price: ${formatPrice(product.price)}). Is it available?`;
+        .replace(/{{item_url}}/g, productUrl)
+    : `Hi Fahad Electronics, I'm interested in ${product.name} (Price: ${formatPrice(product.price)}). View: ${productUrl}`;
 
   const whatsappNumber = whatsappSettings?.whatsapp || "923350237370";
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, whatsappMsg);
 
   const handleShare = async (e: React.MouseEvent) => {
+    const productUrl = window.location.href.split('#')[0] + '#/product/' + product.id;
     e.preventDefault();
     if (navigator.share) {
       try {
         await navigator.share({
           title: product.name,
           text: product.description,
-          url: window.location.origin + `/product/${product.id}`,
+          url: productUrl,
         });
       } catch (err) {
         console.log("Sharing failed", err);
       }
     } else {
-      navigator.clipboard.writeText(window.location.origin + `/product/${product.id}`);
+      navigator.clipboard.writeText(productUrl);
       alert("Link copied to clipboard!");
     }
   };
