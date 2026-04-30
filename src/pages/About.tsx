@@ -73,10 +73,10 @@ export const About = () => {
 
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start mb-20">
           <div className="space-y-10">
             <div>
-              <h2 className="text-3xl font-black mb-6">Our Store & Office</h2>
+              <h2 className="text-3xl font-black mb-6 uppercase tracking-tight">Our Store & Office</h2>
               <div className="space-y-6">
                 <div className="flex gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-brand-blue flex-shrink-0">
@@ -104,7 +104,7 @@ export const About = () => {
             </div>
 
             <div>
-              <h2 className="text-3xl font-black mb-6">Contact Info</h2>
+              <h2 className="text-3xl font-black mb-6 uppercase tracking-tight">Contact Info</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <a href="tel:02132761001" className="flex items-center gap-4 p-5 bg-blue-50 text-brand-blue rounded-2xl hover:bg-blue-100 transition-colors">
                   <Phone size={20} />
@@ -112,32 +112,19 @@ export const About = () => {
                 </a>
                 <a href="mailto:farhanmalikfahadelectronic@gmail.com" className="flex items-center gap-4 p-5 bg-red-50 text-brand-red rounded-2xl hover:bg-red-100 transition-colors">
                   <Mail size={20} />
-                  <span className="font-semibold text-sm">farhanmalik@...</span>
+                  <span className="font-semibold text-sm truncate">farhanmalikfahadelectronic@gmail.com</span>
                 </a>
               </div>
             </div>
 
-             <div className="bg-brand-blue p-8 rounded-3xl text-white">
-              <h3 className="text-xl font-bold mb-4">Need Corporate Solutions?</h3>
-              <p className="text-blue-100 text-sm mb-6 leading-relaxed">
-                We specialize in floor standing and cassette type air-conditioners for offices, halls, and large spaces. Contact our corporate manager directly.
-              </p>
-              <a 
-                href={whatsappSettings ? `https://wa.me/${whatsappSettings.whatsapp}` : "https://wa.me/923350237370"} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center gap-2 bg-white text-brand-blue px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors"
-              >
-                Contact Corporate Manager <ArrowRight size={18} />
-              </a>
-            </div>
+
           </div>
 
           <div className="space-y-10">
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <Clock className="text-brand-blue" size={24} />
-                <h2 className="text-2xl font-black">Business Hours</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tight">Business Hours</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {businessHours.map((bh, i) => (
@@ -167,6 +154,155 @@ export const About = () => {
                 title="Business Location"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Payment Methods */}
+        <div className="pt-20 border-t border-gray-100">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-brand-blue rounded-full text-xs font-black uppercase tracking-widest mb-4">
+              <ShieldCheck size={14} />
+              Secure Payments
+            </div>
+            <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tight">Online Payment <span className="text-brand-blue">Bank Accounts</span></h2>
+            <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
+              For your convenience, we accept online transfers through several major banks in Pakistan.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[
+              {
+                bank: "Meezan Bank",
+                title: "Fahad Electronics",
+                acc: "01530104382610",
+                iban: "PK41MEZN0001530104382610",
+                branch: "Abdullah Haroon Road KHI",
+                color: "bg-purple-50 border-purple-200"
+              },
+              {
+                bank: "Meezan Bank",
+                title: "Fahad",
+                acc: "01530100532611",
+                iban: "PK61MEZN0001530100532611",
+                branch: "Abdullah Haroon Road KHI",
+                color: "bg-purple-100/50 border-purple-200"
+              },
+              {
+                bank: "JS BANK",
+                title: "MUHAMMAD FAISAL RAZA",
+                acc: "9606 0000 0056 6747",
+                iban: "PK89 JSBL 9606 0000 0056 6747",
+                color: "bg-yellow-50 border-yellow-200"
+              },
+              {
+                bank: "Askari Bank",
+                title: "Fahad",
+                acc: "0007 2602 0000 0311",
+                iban: "PK86 ASCM 0007 2602 0000 0311",
+                color: "bg-blue-50 border-blue-200"
+              },
+              {
+                bank: "Faysal Bank",
+                title: "Fahad Electronics",
+                acc: "3485 3010 0000 1047",
+                iban: "PK33 FAYS 3485 3010 0000 1047",
+                color: "bg-blue-100/50 border-blue-200"
+              },
+              {
+                bank: "Bank AL Habib Limited",
+                title: "MUHAMMAD FAISAL RAZA",
+                acc: "5056 0081 0001 2001",
+                iban: "PK02 BAHL 5056 0081 0001 2001",
+                color: "bg-green-100/50 border-green-200"
+              },
+              {
+                bank: "HABIBMETRO",
+                title: "Fahad Electronics",
+                acc: "0120 02714019 7032",
+                iban: "PK31MPBL 0120 02714019 7032",
+                color: "bg-green-50 border-green-200"
+              },
+              {
+                bank: "Summit Bank",
+                title: "Fahad Electronics",
+                acc: "2160 2714 0118 013",
+                iban: "PK91SUMB 0216 027140118013",
+                color: "bg-orange-50 border-orange-200"
+              },
+              {
+                bank: "Bank Alfalah",
+                title: "FAHAD ELECTRONICS",
+                acc: "00151009017819",
+                iban: "PK97ALFH0015001009017819",
+                color: "bg-red-50 border-red-200"
+              },
+              {
+                bank: "HBL",
+                title: "Fahad Electronics",
+                acc: "0000347900919903",
+                iban: "PK84 HABB 0000347900919903",
+                color: "bg-green-50 border-green-200"
+              },
+              {
+                bank: "BankIslami",
+                title: "Fahad Electronics",
+                acc: "0108600227300001",
+                iban: "PK86BKIP 0108600227300001",
+                color: "bg-blue-50 border-blue-200"
+              },
+              {
+                bank: "UBL",
+                title: "Fahad Electronics",
+                acc: "0109000303443238",
+                iban: "PK88UNIL0109000303443238",
+                color: "bg-cyan-50 border-cyan-200"
+              }
+            ].map((account, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={cn(
+                  "p-8 rounded-3xl border-2 transition-all hover:shadow-lg relative overflow-hidden",
+                  account.color
+                )}
+              >
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
+                    <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase">{account.bank}</h3>
+                    <div className="px-3 py-1 bg-white/80 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-500 border border-white">Online Payment</div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Account Title</p>
+                      <p className="font-bold text-gray-900">{account.title}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Account Number</p>
+                      <p className="font-mono font-bold text-gray-900 break-all">{account.acc}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">IBAN</p>
+                      <p className="font-mono text-xs font-bold text-gray-900 break-all">{account.iban}</p>
+                    </div>
+                    {account.branch && (
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Branch</p>
+                        <p className="text-xs font-semibold text-gray-600">{account.branch}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Decorative Pattern */}
+                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                  <Logo showText={false} className="scale-150 rotate-12" />
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
