@@ -192,37 +192,15 @@ export const ProductDetail = () => {
                 <ShoppingCart size={24} /> Buy via WhatsApp
               </a>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="w-full">
                 <a 
                   href={shareWhatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-green-500 text-green-600 rounded-2xl hover:bg-green-50 transition-all font-bold"
+                  className="flex items-center justify-center gap-2 px-8 py-5 border-2 border-green-500 text-green-600 rounded-2xl hover:bg-green-50 transition-all font-bold text-lg"
                 >
-                  <Share2 size={20} /> Share WhatsApp
+                  <Share2 size={24} /> Share on WhatsApp
                 </a>
-                <button 
-                  onClick={() => {
-                    const msg = (whatsappSettings?.shareTemplate || 'Check out this product: {{item_title}} - {{price}} {{item_url}}')
-                      .replace(/{{item_title}}/g, product.name)
-                      .replace(/{{price}}/g, formatPrice(product.price))
-                      .replace(/{{item_url}}/g, window.location.href);
-
-                    if (navigator.share) {
-                      navigator.share({ 
-                        title: product.name, 
-                        text: msg,
-                        url: window.location.href 
-                      });
-                    } else {
-                      navigator.clipboard.writeText(`${msg}\n\n${window.location.href}`);
-                      alert("Link and details copied!");
-                    }
-                  }}
-                  className="flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 rounded-2xl hover:bg-gray-50 transition-all font-bold"
-                >
-                  <Share2 size={20} /> Other
-                </button>
               </div>
             </div>
           </motion.div>
