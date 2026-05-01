@@ -32,7 +32,10 @@ export const googleSheetsService = {
                 price: Number((row.Price || row.price || '0').toString().replace(/[^0-9.]/g, '')),
                 category: row.Category || row.category || 'General',
                 brand: row.Brand || row.brand || '',
-                description: row.Description || row.description || '',
+                description: (row.Description || row.description || '')
+                  .split(';')
+                  .map((s: string) => s.trim())
+                  .join('\n'),
                 image: mainImage,
                 images: galleryImages,
                 inStock: (row.InStock || row.inStock || 'true').toString().toLowerCase() === 'true',
