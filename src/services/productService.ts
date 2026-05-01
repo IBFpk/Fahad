@@ -94,25 +94,29 @@ export const productService = {
       const productsRef = collection(db, 'products');
       const categoriesRef = collection(db, 'categories');
       
+      let createdCount = 0;
+      let updatedCount = 0;
+
       // Get existing products to find matches by name
       const existingSnapshot = await getDocs(productsRef);
       const existingMap = new Map<string, string>(); // name -> id
       existingSnapshot.forEach(doc => {
-        existingMap.set(doc.data().name.toLowerCase(), doc.id);
+        existingMap.set(doc.data().name.trim().toLowerCase(), doc.id);
       });
 
       // Get existing categories
       const categorySnapshot = await getDocs(categoriesRef);
-      const categorySet = new Set(categorySnapshot.docs.map(d => d.data().name.toLowerCase()));
+      const categorySet = new Set(categorySnapshot.docs.map(d => d.data().name.trim().toLowerCase()));
 
       for (const p of products) {
-        const nameLower = p.name.toLowerCase();
+        const nameTrimmed = p.name.trim();
+        const nameLower = nameTrimmed.toLowerCase();
         
         // Add category if not exists
-        if (p.category && !categorySet.has(p.category.toLowerCase())) {
+        if (p.category && !categorySet.has(p.category.trim().toLowerCase())) {
           const catDoc = doc(categoriesRef);
-          batch.set(catDoc, { name: p.category });
-          categorySet.add(p.category.toLowerCase());
+          batch.set(catDoc, { name: p.category.trim() });
+          categorySet.add(p.category.trim().toLowerCase());
         }
 
         if (existingMap.has(nameLower)) {
@@ -120,24 +124,28 @@ export const productService = {
           const docRef = doc(db, 'products', existingMap.get(nameLower)!);
           batch.update(docRef, {
             ...p,
+            name: nameTrimmed, // Keep trimmed name
             updatedAt: serverTimestamp()
           });
+          updatedCount++;
         } else {
           // Add new
           const docRef = doc(productsRef);
           batch.set(docRef, {
             ...p,
+            name: nameTrimmed, // Keep trimmed name
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           });
+          createdCount++;
         }
       }
 
       await batch.commit();
-      return true;
+      return { success: true, createdCount, updatedCount };
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'products');
-      return false;
+      return { success: false, createdCount: 0, updatedCount: 0 };
     }
   },
 

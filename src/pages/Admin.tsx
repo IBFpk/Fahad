@@ -119,13 +119,13 @@ export const Admin = () => {
         return;
       }
       
-      const success = await productService.bulkUpsertProducts(sheetProducts);
-      if (success) {
-        alert(`Successfully synced ${sheetProducts.length} products!`);
+      const result = await productService.bulkUpsertProducts(sheetProducts);
+      if (result.success) {
+        alert(`Sync Complete!\n\n- Updated: ${result.updatedCount}\n- Created: ${result.createdCount}\n- Total: ${sheetProducts.length}`);
         await loadData();
         setShowSyncModal(false);
       } else {
-        alert("Bulk update failed.");
+        alert("Bulk update failed check console for details.");
       }
     } catch (err: any) {
       alert("Sync failed: " + err.message);

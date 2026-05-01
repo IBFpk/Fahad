@@ -28,10 +28,10 @@ export const googleSheetsService = {
                 .filter(Boolean);
 
               return {
-                name: row.Name || row.name || '',
+                name: (row.Name || row.name || '').trim(),
                 price: Number((row.Price || row.price || '0').toString().replace(/[^0-9.]/g, '')),
-                category: row.Category || row.category || 'General',
-                brand: row.Brand || row.brand || '',
+                category: (row.Category || row.category || 'General').trim(),
+                brand: (row.Brand || row.brand || '').trim(),
                 description: (row.Description || row.description || '')
                   .split(';')
                   .map((s: string) => s.trim())
