@@ -23,8 +23,8 @@ export const Logo: React.FC<LogoProps> = ({ className, showText = true }) => {
       </div>
       {showText && (
         <div className="flex flex-col leading-none">
-          <span className="text-xl font-bold tracking-tight text-brand-blue uppercase">Fahad</span>
-          <span className="text-sm font-semibold tracking-[0.2em] text-brand-red uppercase">Electronics</span>
+          <span className="text-xl font-bold tracking-tight text-brand-blue uppercase">Fahad Electronics</span>
+          <span className="text-sm font-semibold tracking-[0.2em] text-brand-red uppercase">Beauty Shop</span>
         </div>
       )}
     </div>

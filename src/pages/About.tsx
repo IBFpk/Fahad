@@ -31,7 +31,6 @@ export const About = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <Logo className="justify-center mb-8 scale-150" showText={true} />
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 uppercase tracking-tight">
               Leading the Way in <span className="text-brand-blue">Electronic Excellence</span>
             </h1>

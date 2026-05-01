@@ -19,7 +19,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-2">
-              <h3 className="text-2xl font-bold mb-4">FAHAD ELECTRONICS</h3>
+              <div className="flex flex-col mb-4">
+                <h3 className="text-2xl font-bold leading-tight">FAHAD ELECTRONICS</h3>
+                <span className="text-sm font-semibold tracking-[0.2em] text-brand-red uppercase">Beauty Shop</span>
+              </div>
               <p className="text-blue-100 mb-6 max-w-md">
                 Your trusted partner for home appliances and corporate cooling solutions. 
                 Deals in Split AC, Floor Standing, LED TV, Refrigerator & more.
@@ -36,7 +39,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <ul className="space-y-2">
                 <li><Link to="/" className="text-blue-100 hover:text-white transition-colors">Products</Link></li>
                 <li><Link to="/about" className="text-blue-100 hover:text-white transition-colors">About Us</Link></li>
-                <li><Link to="/admin" className="text-blue-100 hover:text-white transition-colors">Admin Login</Link></li>
               </ul>
             </div>
 
@@ -45,7 +47,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <MapPin className="text-brand-red flex-shrink-0" size={20} />
-                  <span className="text-sm text-blue-100">Shop # L-41, Hashoo Center, Saddar, Karachi.</span>
+                  <span className="text-sm text-blue-100">#17, Beauty House, Abdullah Haroon Road, Saddar, Karachi. Near Bank Of Punjab</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone className="text-brand-red flex-shrink-0" size={20} />
