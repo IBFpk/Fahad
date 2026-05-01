@@ -27,15 +27,15 @@ export const settingsService = {
       }
       return {
         whatsapp: '923350237370',
-        whatsappTemplate: 'Salam! I am interested in this product from Fahad Electronics:\n\n*{{item_title}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
-        shareTemplate: 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
+        whatsappTemplate: 'Salam! I am interested in this product from Fahad Electronics:\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
+        shareTemplate: 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
       };
     } catch (error) {
       console.error('Error fetching whatsapp settings', error);
       return {
         whatsapp: '923350237370',
-        whatsappTemplate: 'Salam! I am interested in this product from Fahad Electronics:\n\n*{{item_title}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
-        shareTemplate: 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
+        whatsappTemplate: 'Salam! I am interested in this product from Fahad Electronics:\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
+        shareTemplate: 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
       };
     }
   },

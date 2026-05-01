@@ -17,9 +17,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
     const whatsappMsg = whatsappSettings 
     ? whatsappSettings.whatsappTemplate
         .replace(/{{item_title}}/g, product.name)
+        .replace(/{{brand}}/g, product.brand || '')
         .replace(/{{price}}/g, formatPrice(product.price))
         .replace(/{{item_url}}/g, productUrl)
-    : `Hi Fahad Electronics, I'm interested in ${product.name} (Price: ${formatPrice(product.price)}). View: ${productUrl}`;
+    : `Hi Fahad Electronics, I'm interested in ${product.brand ? `[${product.brand}] ` : ''}${product.name} (Price: ${formatPrice(product.price)}). View: ${productUrl}`;
 
   const whatsappNumber = whatsappSettings?.whatsapp || "923350237370";
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, whatsappMsg);
@@ -28,8 +29,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
     const productUrl = window.location.origin + window.location.pathname + '#/product/' + product.id;
     e.preventDefault();
     
-    const msg = (whatsappSettings?.shareTemplate || 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}')
+    const msg = (whatsappSettings?.shareTemplate || 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}')
       .replace(/{{item_title}}/g, product.name)
+      .replace(/{{brand}}/g, product.brand || '')
       .replace(/{{price}}/g, formatPrice(product.price))
       .replace(/{{item_url}}/g, productUrl);
 

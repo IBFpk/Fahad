@@ -550,7 +550,7 @@ export const Admin = () => {
                     />
                     <div className="flex flex-wrap gap-2 mt-2">
                       <span className="text-[9px] font-black text-gray-400 uppercase">Placeholders:</span>
-                      {['{{item_title}}', '{{price}}', '{{item_url}}'].map(p => (
+                      {['{{item_title}}', '{{brand}}', '{{price}}', '{{item_url}}'].map(p => (
                         <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
                       ))}
                     </div>
@@ -566,7 +566,7 @@ export const Admin = () => {
                     />
                     <div className="flex flex-wrap gap-2 mt-2">
                       <span className="text-[9px] font-black text-gray-400 uppercase">Placeholders:</span>
-                      {['{{item_title}}', '{{price}}', '{{item_url}}'].map(p => (
+                      {['{{item_title}}', '{{brand}}', '{{price}}', '{{item_url}}'].map(p => (
                         <code key={p} className="text-[9px] bg-blue-50 text-brand-blue px-1.5 py-0.5 rounded font-mono font-bold uppercase">{p}</code>
                       ))}
                     </div>

@@ -62,6 +62,7 @@ export const ProductDetail = () => {
       : whatsappSettings.whatsappTemplate;
       
     msg = msg.replace(/{{item_title}}/g, product.name);
+    msg = msg.replace(/{{brand}}/g, product.brand || '');
     msg = msg.replace(/{{price}}/g, formatPrice(product.price));
     msg = msg.replace(/{{item_url}}/g, window.location.href);
     msg = msg.replace(/{{image_url}}/g, product.image || '');
