@@ -5,6 +5,7 @@ import { Plus, Trash2, Loader2, Save, LogIn, LogOut, UserCheck, Camera, Pencil, 
 import { auth } from '../lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signInWithEmailAndPassword } from 'firebase/auth';
 import { settingsService, WhatsAppSettings, PromotionSettings } from '../services/settingsService';
+import { googleSheetsService } from '../services/googleSheetsService';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Admin = () => {
@@ -14,7 +15,10 @@ export const Admin = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState('https://docs.google.com/spreadsheets/d/1Ie8NX7tOSEus_UvFV3-qEqF1WEb8Wz2zZS3zghhD8CQ/edit?usp=sharing');
   const [authMode, setAuthMode] = useState<'google' | 'email'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -104,6 +108,31 @@ export const Admin = () => {
   };
 
   const handleLogout = () => auth.signOut();
+  
+  const handleSync = async () => {
+    if (!sheetUrl) return;
+    setSyncing(true);
+    try {
+      const sheetProducts = await googleSheetsService.fetchProductsFromSheet(sheetUrl);
+      if (sheetProducts.length === 0) {
+        alert("No products found in the sheet. Check your headers.");
+        return;
+      }
+      
+      const success = await productService.bulkUpsertProducts(sheetProducts);
+      if (success) {
+        alert(`Successfully synced ${sheetProducts.length} products!`);
+        await loadData();
+        setShowSyncModal(false);
+      } else {
+        alert("Bulk update failed.");
+      }
+    } catch (err: any) {
+      alert("Sync failed: " + err.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const optimizeImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -397,6 +426,12 @@ export const Admin = () => {
             <SettingsIcon size={20} /> Settings
           </button>
           <button 
+            onClick={() => setShowSyncModal(true)}
+            className="flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 px-6 py-3 rounded-xl font-bold hover:bg-green-100 transition-all shadow-sm"
+          >
+            <Sparkles size={20} /> Bulk Sync
+          </button>
+          <button 
             onClick={() => {
               setIsAdding(!isAdding);
               if (isAdding) setEditingId(null);
@@ -410,6 +445,56 @@ export const Admin = () => {
           </button>
         </div>
       </div>
+
+      {showSyncModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl relative"
+          >
+            <button onClick={() => setShowSyncModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"><X size={24} /></button>
+            
+            <h2 className="text-2xl font-black mb-4 flex items-center gap-3">
+              <Sparkles className="text-green-600" /> Google Sheets Sync
+            </h2>
+            
+            <p className="text-gray-500 text-sm mb-6">
+              Update your products in bulk using a public Google Sheet. Matching is done by <strong>Name</strong>.
+            </p>
+
+            <div className="mb-6">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-1 block">Google Sheet URL</label>
+              <input 
+                className="w-full px-5 py-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-green-500 transition-all font-medium text-sm" 
+                value={sheetUrl}
+                onChange={e => setSheetUrl(e.target.value)}
+                placeholder="https://docs.google.com/spreadsheets/d/..."
+              />
+            </div>
+
+            <div className="bg-blue-50 p-5 rounded-2xl mb-8">
+              <h4 className="text-xs font-black text-brand-blue uppercase mb-3 px-1">Required Headers:</h4>
+              <div className="flex flex-wrap gap-2">
+                {['Name', 'Price', 'Category', 'Brand', 'Description', 'Image', 'Images', 'InStock', 'Specifications'].map(h => (
+                  <span key={h} className="bg-white px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-gray-600 border border-blue-100 shadow-sm">{h}</span>
+                ))}
+              </div>
+              <p className="text-[9px] text-blue-400 font-bold uppercase mt-4 text-center">
+                Use ";" for Multiple Images & ":" for Specs (e.g. Weight: 10kg; Color: White)
+              </p>
+            </div>
+
+            <button 
+              onClick={handleSync}
+              disabled={syncing}
+              className="w-full py-5 bg-green-600 text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-xl hover:shadow-green-900/20 active:scale-[0.98] transition-all disabled:opacity-50"
+            >
+              {syncing ? <Loader2 className="animate-spin" /> : <><Sparkles size={20} /> Sync Products Now</>}
+            </button>
+          </motion.div>
+        </div>
+      )}
 
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

@@ -88,6 +88,59 @@ export const productService = {
     }
   },
 
+  async bulkUpsertProducts(products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[]) {
+    try {
+      const batch = await import('firebase/firestore').then(m => m.writeBatch(db));
+      const productsRef = collection(db, 'products');
+      const categoriesRef = collection(db, 'categories');
+      
+      // Get existing products to find matches by name
+      const existingSnapshot = await getDocs(productsRef);
+      const existingMap = new Map<string, string>(); // name -> id
+      existingSnapshot.forEach(doc => {
+        existingMap.set(doc.data().name.toLowerCase(), doc.id);
+      });
+
+      // Get existing categories
+      const categorySnapshot = await getDocs(categoriesRef);
+      const categorySet = new Set(categorySnapshot.docs.map(d => d.data().name.toLowerCase()));
+
+      for (const p of products) {
+        const nameLower = p.name.toLowerCase();
+        
+        // Add category if not exists
+        if (p.category && !categorySet.has(p.category.toLowerCase())) {
+          const catDoc = doc(categoriesRef);
+          batch.set(catDoc, { name: p.category });
+          categorySet.add(p.category.toLowerCase());
+        }
+
+        if (existingMap.has(nameLower)) {
+          // Update existing
+          const docRef = doc(db, 'products', existingMap.get(nameLower)!);
+          batch.update(docRef, {
+            ...p,
+            updatedAt: serverTimestamp()
+          });
+        } else {
+          // Add new
+          const docRef = doc(productsRef);
+          batch.set(docRef, {
+            ...p,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+        }
+      }
+
+      await batch.commit();
+      return true;
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'products');
+      return false;
+    }
+  },
+
   async deleteProduct(id: string) {
     try {
       const docRef = doc(db, 'products', id);
