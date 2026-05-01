@@ -60,7 +60,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
         <img
           src={product.image || 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=600'}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-500"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (target.src !== 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=600') {
+              target.src = 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=600';
+            }
+          }}
         />
         <div className="absolute top-3 left-3">
           <span className="px-3 py-1 bg-brand-blue text-white text-xs font-bold rounded-full shadow-sm uppercase tracking-wider">

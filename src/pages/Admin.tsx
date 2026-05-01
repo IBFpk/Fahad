@@ -697,7 +697,7 @@ export const Admin = () => {
                 <div className="grid grid-cols-4 gap-2 mb-4">
                   {[formData.image, ...(formData.images || [])].filter(Boolean).map((img, i) => (
                     <div key={i} className="relative aspect-square rounded-lg overflow-hidden border bg-white group">
-                      <img src={img} className="w-full h-full object-cover" alt="" />
+                      <img src={img} className="w-full h-full object-cover" alt="" referrerPolicy="no-referrer" />
                       <button 
                         type="button" 
                         onClick={() => {
@@ -795,7 +795,7 @@ export const Admin = () => {
             {products.map(p => (
               <div key={p.id} className="bg-white p-4 rounded-2xl border border-gray-100 flex gap-4 items-center shadow-sm">
                 <div className="w-20 h-20 flex-shrink-0">
-                  <img src={p.image} className="w-full h-full rounded-xl object-cover bg-gray-50" alt="" />
+                  <img src={p.image} className="w-full h-full rounded-xl object-cover bg-gray-50" alt="" referrerPolicy="no-referrer" />
                 </div>
                 <div className="flex-grow min-w-0">
                   <h3 className="font-bold text-sm leading-tight mb-1 truncate text-gray-900">{p.name}</h3>
@@ -838,7 +838,7 @@ export const Admin = () => {
               <tr key={p.id} className="hover:bg-gray-50 group">
                 <td className="px-8 py-4">
                   <div className="flex items-center gap-4">
-                    <img src={p.image} className="w-12 h-12 rounded-xl object-cover bg-gray-100" alt="" />
+                    <img src={p.image} className="w-12 h-12 rounded-xl object-cover bg-gray-100" alt="" referrerPolicy="no-referrer" />
                     <span className="font-bold text-gray-900">{p.name}</span>
                   </div>
                 </td>

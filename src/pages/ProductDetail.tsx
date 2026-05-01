@@ -95,7 +95,14 @@ export const ProductDetail = () => {
               <img
                 src={activeImage || 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=1200'}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=1200') {
+                    target.src = 'https://images.unsplash.com/photo-1556911220-e15b44079565?auto=format&fit=crop&q=80&w=1200';
+                  }
+                }}
               />
             </div>
             
@@ -110,7 +117,7 @@ export const ProductDetail = () => {
                     )}
                     onClick={() => setActiveImage(img)}
                   >
-                    <img src={img} className="w-full h-full object-cover" alt={`View ${i + 1}`} />
+                    <img src={img} className="w-full h-full object-cover" alt={`View ${i + 1}`} referrerPolicy="no-referrer" />
                   </button>
                 ))}
               </div>

@@ -100,6 +100,7 @@ export const Home = () => {
             src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000" 
             className="w-full h-full object-cover opacity-20"
             alt="Hero background"
+            referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-brand-blue via-brand-blue/80 to-transparent" />
         </div>

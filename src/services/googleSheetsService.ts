@@ -21,16 +21,20 @@ export const googleSheetsService = {
           skipEmptyLines: true,
           complete: (results) => {
             const products = results.data.map((row: any) => {
-              // Map row details to Product fields
-              // We assume headers like: Name, Price, Category, Brand, Description, Image, Images, InStock, Specifications
+              const mainImage = this.transformDriveUrl(row.Image || row.image || '');
+              const galleryImages = (row.Images || row.images || '')
+                .split(';')
+                .map((s: string) => this.transformDriveUrl(s.trim()))
+                .filter(Boolean);
+
               return {
                 name: row.Name || row.name || '',
                 price: Number((row.Price || row.price || '0').toString().replace(/[^0-9.]/g, '')),
                 category: row.Category || row.category || 'General',
                 brand: row.Brand || row.brand || '',
                 description: row.Description || row.description || '',
-                image: row.Image || row.image || '',
-                images: (row.Images || row.images || '').split(';').map((s: string) => s.trim()).filter(Boolean),
+                image: mainImage,
+                images: galleryImages,
                 inStock: (row.InStock || row.inStock || 'true').toString().toLowerCase() === 'true',
                 specifications: this.parseSpecifications(row.Specifications || row.specifications || '')
               };
@@ -44,6 +48,41 @@ export const googleSheetsService = {
       console.error('Sheet Sync Error:', error);
       throw error;
     }
+  },
+
+  transformDriveUrl(url: string): string {
+    if (!url) return '';
+    
+    // Clean URL and trim whitespace
+    let cleanUrl = url.trim();
+    
+    // Ensure https if it's a protocol-relative or http URL
+    if (cleanUrl.startsWith('//')) cleanUrl = 'https:' + cleanUrl;
+    if (cleanUrl.startsWith('http:')) cleanUrl = cleanUrl.replace('http:', 'https:');
+
+    if (!cleanUrl.includes('drive.google.com')) return cleanUrl;
+
+    try {
+      let fileId = '';
+      if (cleanUrl.includes('/file/d/')) {
+        const parts = cleanUrl.split('/file/d/');
+        if (parts[1]) fileId = parts[1].split('/')[0];
+      } else if (cleanUrl.includes('id=')) {
+        const urlParams = new URL(cleanUrl).searchParams;
+        fileId = urlParams.get('id') || '';
+      } else if (cleanUrl.includes('/d/')) {
+        const parts = cleanUrl.split('/d/');
+        if (parts[1]) fileId = parts[1].split('/')[0];
+      }
+
+      if (fileId) {
+        // This endpoint is generally more reliable for high-resolution hotlinking
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
+      }
+    } catch (e) {
+      console.error('Error parsing drive URL:', cleanUrl);
+    }
+    return cleanUrl;
   },
 
   parseSpecifications(specStr: string): Record<string, string> {
