@@ -33,6 +33,7 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedBrand, setSelectedBrand] = useState('All');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
   const [isSortOpen, setIsSortOpen] = useState(false);
 
@@ -57,7 +58,8 @@ export const Home = () => {
                           (p.brand && p.brand.toLowerCase().includes(query)) ||
                           p.category.toLowerCase().includes(query);
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesBrand = selectedBrand === 'All' || p.brand === selectedBrand;
+    return matchesSearch && matchesCategory && matchesBrand;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -83,7 +85,11 @@ export const Home = () => {
   const allCategories = Array.from(new Set([
     ...categories.map(c => c.name),
     ...products.map(p => p.category)
-  ])).filter(Boolean);
+  ])).filter(Boolean).sort();
+
+  const allBrands = Array.from(new Set(
+    products.map(p => p.brand).filter(Boolean)
+  )).sort();
 
   return (
     <div className="pb-20">
@@ -263,33 +269,90 @@ export const Home = () => {
           )}
         </AnimatePresence>
 
+        {/* Brands Filter */}
+        {allBrands.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Shop by Brand</h3>
+              {selectedBrand !== 'All' && (
+                <button 
+                  onClick={() => setSelectedBrand('All')}
+                  className="text-xs font-bold text-brand-blue hover:underline"
+                >
+                  Clear Brand
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedBrand('All')}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-sm font-bold transition-all border",
+                  selectedBrand === 'All' 
+                    ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
+                    : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
+                )}
+              >
+                All Brands
+              </button>
+              {allBrands.map((brand) => (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl text-sm font-bold transition-all border",
+                    selectedBrand === brand 
+                      ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
+                      : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
+                  )}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Categories */}
-        <div className="flex flex-wrap gap-3 mb-10">
-          <button
-            onClick={() => setSelectedCategory('All')}
-            className={cn(
-              "px-6 py-2.5 rounded-xl font-semibold transition-all border",
-              selectedCategory === 'All' 
-                ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
-                : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Shop by Category</h3>
+            {selectedCategory !== 'All' && (
+              <button 
+                onClick={() => setSelectedCategory('All')}
+                className="text-xs font-bold text-brand-blue hover:underline"
+              >
+                Clear Category
+              </button>
             )}
-          >
-            All Products
-          </button>
-          {allCategories.map((catName) => (
+          </div>
+          <div className="flex flex-wrap gap-3">
             <button
-              key={catName}
-              onClick={() => setSelectedCategory(catName)}
+              onClick={() => setSelectedCategory('All')}
               className={cn(
-                "px-6 py-2.5 rounded-xl font-semibold transition-all border",
-                selectedCategory === catName 
+                "px-6 py-2.5 rounded-xl text-sm font-bold transition-all border",
+                selectedCategory === 'All' 
                   ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
                   : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
               )}
             >
-              {catName}
+              All Products
             </button>
-          ))}
+            {allCategories.map((catName) => (
+              <button
+                key={catName}
+                onClick={() => setSelectedCategory(catName)}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-sm font-bold transition-all border",
+                  selectedCategory === catName 
+                    ? "bg-brand-blue text-white border-brand-blue shadow-lg shadow-blue-200" 
+                    : "bg-white text-gray-600 border-gray-200 hover:border-brand-blue"
+                )}
+              >
+                {catName}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Product Grid */}
