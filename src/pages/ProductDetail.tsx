@@ -131,9 +131,16 @@ export const ProductDetail = () => {
             className="flex flex-col"
           >
             <div className="mb-8">
-              <span className="inline-block px-4 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full mb-4 uppercase tracking-widest">
-                {product.category}
-              </span>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {product.brand && (
+                  <span className="inline-block px-4 py-1.5 bg-gray-100 text-gray-900 text-xs font-bold rounded-full uppercase tracking-widest">
+                    {product.brand}
+                  </span>
+                )}
+                <span className="inline-block px-4 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full uppercase tracking-widest">
+                  {product.category}
+                </span>
+              </div>
               <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 leading-tight">
                 {product.name}
               </h1>

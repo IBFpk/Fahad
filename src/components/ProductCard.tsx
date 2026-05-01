@@ -69,7 +69,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
             }
           }}
         />
-        <div className="absolute top-3 left-3">
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1">
+          {product.brand && (
+            <span className="px-3 py-1 bg-white text-gray-900 text-xs font-bold rounded-full shadow-sm uppercase tracking-wider border border-gray-100">
+              {product.brand}
+            </span>
+          )}
           <span className="px-3 py-1 bg-brand-blue text-white text-xs font-bold rounded-full shadow-sm uppercase tracking-wider">
             {product.category}
           </span>
