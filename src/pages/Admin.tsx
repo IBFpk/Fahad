@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../services/productService';
 import { Product, Category } from '../types';
-import { Plus, Trash2, Loader2, Save, LogIn, LogOut, UserCheck, Camera, Pencil, X, MessageSquare, Settings as SettingsIcon, Megaphone, Sparkles, Flame, Info } from 'lucide-react';
+import { Plus, Trash2, Loader2, Save, LogIn, LogOut, UserCheck, Camera, Pencil, X, MessageSquare, Settings as SettingsIcon, Megaphone, Sparkles, Flame, Info, Download, Upload } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User, signInWithEmailAndPassword } from 'firebase/auth';
-import { settingsService, WhatsAppSettings, PromotionSettings } from '../services/settingsService';
+import { settingsService, WhatsAppSettings, PromotionSettings, BrandSettings, BankAccount } from '../services/settingsService';
 import { googleSheetsService } from '../services/googleSheetsService';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSettings } from '../context/SettingsContext';
 
 export const Admin = () => {
+  const { refreshSettings } = useSettings();
   const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -49,10 +51,37 @@ export const Admin = () => {
     type: 'info'
   });
 
-  const [settingsTab, setSettingsTab] = useState<'whatsapp' | 'promo'>('whatsapp');
+  const [brandSettings, setBrandSettings] = useState<BrandSettings>({
+    businessName: '',
+    businessSub: '',
+    description: '',
+    address: '',
+    phone: '',
+    email: '',
+    instagramUrl: '',
+    facebookUrl: '',
+    twitterUrl: '',
+    logoType: 'icon',
+    logoUrl: '',
+    bankAccounts: []
+  });
+
+  // State for adding a new bank account in settings
+  const [newBankName, setNewBankName] = useState('');
+  const [newAccountTitle, setNewAccountTitle] = useState('');
+  const [newAccountNumber, setNewAccountNumber] = useState('');
+  const [newIban, setNewIban] = useState('');
+  const [newBranch, setNewBranch] = useState('');
+  const [newColor, setNewColor] = useState('bg-blue-50 border-blue-200');
+
+  const [settingsTab, setSettingsTab] = useState<'whatsapp' | 'promo' | 'brand' | 'backup'>('brand');
 
   const [newSpecKey, setNewSpecKey] = useState('');
   const [newSpecVal, setNewSpecVal] = useState('');
+
+  // Backup file state
+  const [backupFile, setBackupFile] = useState<File | null>(null);
+  const [backupImporting, setBackupImporting] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -69,16 +98,18 @@ export const Admin = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [p, c, s, promo] = await Promise.all([
+    const [p, c, s, promo, brand] = await Promise.all([
       productService.getProducts(), 
       productService.getCategories(),
       settingsService.getWhatsAppSettings(),
-      settingsService.getPromotionSettings()
+      settingsService.getPromotionSettings(),
+      settingsService.getBrandSettings()
     ]);
     setProducts(p);
     setCategories(c);
     setWhatsappSettings(s);
     setPromoSettings(promo);
+    setBrandSettings(brand);
     setLoading(false);
   };
 
@@ -276,15 +307,102 @@ export const Admin = () => {
     try {
       if (settingsTab === 'whatsapp') {
         await settingsService.updateWhatsAppSettings(whatsappSettings);
-      } else {
+      } else if (settingsTab === 'promo') {
         await settingsService.updatePromotionSettings(promoSettings);
+      } else if (settingsTab === 'brand') {
+        await settingsService.updateBrandSettings(brandSettings);
       }
+      refreshSettings();
       setShowSettings(false);
       alert("Settings saved successfully!");
     } catch (err) {
       alert("Failed to save settings.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportBackup = async () => {
+    try {
+      const backupData = {
+        exportedAt: new Date().toISOString(),
+        products: products,
+        whatsappSettings: whatsappSettings,
+        promoSettings: promoSettings,
+        brandSettings: brandSettings
+      };
+      
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `app-backup-${(brandSettings.businessName || 'universal').replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Failed to export backup data.");
+    }
+  };
+
+  const handleImportBackup = async () => {
+    if (!backupFile) {
+      alert("Please select a valid backup JSON file first.");
+      return;
+    }
+    
+    if (!confirm("Are you sure you want to restore? This will bulk upsert all products and overwrite all store settings from the backup. This cannot be undone.")) {
+      return;
+    }
+
+    setBackupImporting(true);
+    try {
+      const fileReader = new FileReader();
+      fileReader.onload = async (e) => {
+        try {
+          const jsonText = e.target?.result as string;
+          const data = JSON.parse(jsonText);
+          
+          if (!data || (!data.brandSettings && !data.products)) {
+            throw new Error("Invalid backup file format. Must contain at least brandSettings or products.");
+          }
+
+          // Restore brand settings
+          if (data.brandSettings) {
+            await settingsService.updateBrandSettings(data.brandSettings);
+            setBrandSettings(data.brandSettings);
+          }
+          // Restore WhatsApp settings
+          if (data.whatsappSettings) {
+            await settingsService.updateWhatsAppSettings(data.whatsappSettings);
+            setWhatsappSettings(data.whatsappSettings);
+          }
+          // Restore Promo settings
+          if (data.promoSettings) {
+            await settingsService.updatePromotionSettings(data.promoSettings);
+            setPromoSettings(data.promoSettings);
+          }
+          // Restore Products
+          if (data.products && Array.isArray(data.products) && data.products.length > 0) {
+            await productService.bulkUpsertProducts(data.products);
+          }
+
+          refreshSettings();
+          await loadData();
+          alert("Backup restored successfully!");
+          setShowSettings(false);
+        } catch (err: any) {
+          alert("Error parsing backup: " + err.message);
+        } finally {
+          setBackupImporting(false);
+          setBackupFile(null);
+        }
+      };
+      fileReader.readAsText(backupFile);
+    } catch (err) {
+      alert("Failed to import backup data.");
+      setBackupImporting(false);
     }
   };
 
@@ -501,31 +619,253 @@ export const Admin = () => {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            className="bg-white w-full max-w-2xl rounded-3xl p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto"
           >
             <button onClick={() => setShowSettings(false)} className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"><X size={24} /></button>
             
             <h2 className="text-2xl font-black mb-6 flex items-center gap-3">
-              <SettingsIcon className="text-brand-blue" /> Store Settings
+              <SettingsIcon className="text-brand-blue" /> Store & System Settings
             </h2>
 
-            <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-6">
+            <div className="flex flex-wrap gap-2 p-1 bg-gray-100 rounded-xl mb-6">
+              <button 
+                onClick={() => setSettingsTab('brand')}
+                className={`flex-1 min-w-[100px] py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'brand' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+              >
+                Business Info
+              </button>
               <button 
                 onClick={() => setSettingsTab('whatsapp')}
-                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'whatsapp' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+                className={`flex-1 min-w-[100px] py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'whatsapp' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
               >
                 WhatsApp
               </button>
               <button 
                 onClick={() => setSettingsTab('promo')}
-                className={`flex-1 py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'promo' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+                className={`flex-1 min-w-[100px] py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'promo' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
               >
                 Promo Banner
+              </button>
+              <button 
+                onClick={() => setSettingsTab('backup')}
+                className={`flex-1 min-w-[100px] py-2 px-4 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all ${settingsTab === 'backup' ? 'bg-white text-brand-blue shadow-sm' : 'text-gray-400'}`}
+              >
+                Backup & Restore
               </button>
             </div>
 
             <div className="space-y-6">
-              {settingsTab === 'whatsapp' ? (
+              {settingsTab === 'brand' && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Business Name</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                        value={brandSettings.businessName}
+                        onChange={e => setBrandSettings({...brandSettings, businessName: e.target.value})}
+                        placeholder="e.g. FAHAD ELECTRONICS"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Subtitle / Brand Descriptor</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                        value={brandSettings.businessSub}
+                        onChange={e => setBrandSettings({...brandSettings, businessSub: e.target.value})}
+                        placeholder="e.g. BEAUTY SHOP"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Business Description / Tagline</label>
+                    <textarea 
+                      rows={3}
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none text-sm leading-relaxed"
+                      value={brandSettings.description}
+                      onChange={e => setBrandSettings({...brandSettings, description: e.target.value})}
+                      placeholder="About your business..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Contact Address</label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                      value={brandSettings.address}
+                      onChange={e => setBrandSettings({...brandSettings, address: e.target.value})}
+                      placeholder="Full shop / office address"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Phone / Tel Number</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                        value={brandSettings.phone}
+                        onChange={e => setBrandSettings({...brandSettings, phone: e.target.value})}
+                        placeholder="e.g. 021-32761001"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Business Email</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                        value={brandSettings.email}
+                        onChange={e => setBrandSettings({...brandSettings, email: e.target.value})}
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Logo Type</label>
+                      <select 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                        value={brandSettings.logoType || 'icon'}
+                        onChange={e => setBrandSettings({...brandSettings, logoType: e.target.value as any})}
+                      >
+                        <option value="icon">Standard Vector Icon (Gem)</option>
+                        <option value="custom_image">Custom Image Logo URL</option>
+                      </select>
+                    </div>
+                    {brandSettings.logoType === 'custom_image' && (
+                      <div>
+                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Logo Image URL</label>
+                        <input 
+                          className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                          value={brandSettings.logoUrl || ''}
+                          onChange={e => setBrandSettings({...brandSettings, logoUrl: e.target.value})}
+                          placeholder="https://..."
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* BANK ACCOUNTS SECTION */}
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4">Bank Accounts for Payments</h3>
+                    
+                    {/* List Existing Bank Accounts */}
+                    <div className="space-y-3 mb-6">
+                      {(brandSettings.bankAccounts || []).map((account, index) => (
+                        <div key={index} className={`p-4 rounded-xl border flex justify-between items-center ${account.color || 'bg-blue-50 border-blue-100'}`}>
+                          <div>
+                            <p className="text-xs font-black uppercase text-gray-900">{account.bank}</p>
+                            <p className="text-[11px] font-semibold text-gray-600">Title: {account.title} | Acc: {account.acc}</p>
+                            <p className="text-[10px] text-gray-400 font-mono">IBAN: {account.iban}</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const updatedAccounts = [...brandSettings.bankAccounts];
+                              updatedAccounts.splice(index, 1);
+                              setBrandSettings({...brandSettings, bankAccounts: updatedAccounts});
+                            }}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ))}
+                      {(!brandSettings.bankAccounts || brandSettings.bankAccounts.length === 0) && (
+                        <p className="text-xs text-gray-400 italic">No bank accounts added yet.</p>
+                      )}
+                    </div>
+
+                    {/* Add Bank Account form */}
+                    <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 space-y-4">
+                      <p className="text-xs font-black text-gray-900 uppercase">Add Bank Account</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input 
+                          className="px-3 py-2 bg-white rounded-lg text-xs outline-none border border-gray-200"
+                          placeholder="Bank Name (e.g. Meezan Bank)"
+                          value={newBankName}
+                          onChange={e => setNewBankName(e.target.value)}
+                        />
+                        <input 
+                          className="px-3 py-2 bg-white rounded-lg text-xs outline-none border border-gray-200"
+                          placeholder="Account Title"
+                          value={newAccountTitle}
+                          onChange={e => setNewAccountTitle(e.target.value)}
+                        />
+                        <input 
+                          className="px-3 py-2 bg-white rounded-lg text-xs outline-none border border-gray-200"
+                          placeholder="Account Number"
+                          value={newAccountNumber}
+                          onChange={e => setNewAccountNumber(e.target.value)}
+                        />
+                        <input 
+                          className="px-3 py-2 bg-white rounded-lg text-xs outline-none border border-gray-200"
+                          placeholder="IBAN"
+                          value={newIban}
+                          onChange={e => setNewIban(e.target.value)}
+                        />
+                        <input 
+                          className="px-3 py-2 bg-white rounded-lg text-xs outline-none border border-gray-200 sm:col-span-2"
+                          placeholder="Branch (Optional)"
+                          value={newBranch}
+                          onChange={e => setNewBranch(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-black uppercase text-gray-400 mr-2">Color Style:</span>
+                        {[
+                          { class: 'bg-blue-50 border-blue-200', label: 'Blue' },
+                          { class: 'bg-purple-50 border-purple-200', label: 'Purple' },
+                          { class: 'bg-yellow-50 border-yellow-200', label: 'Yellow' },
+                          { class: 'bg-green-50 border-green-200', label: 'Green' },
+                          { class: 'bg-red-50 border-red-200', label: 'Red' },
+                          { class: 'bg-orange-50 border-orange-200', label: 'Orange' }
+                        ].map(c => (
+                          <button
+                            key={c.class}
+                            type="button"
+                            onClick={() => setNewColor(c.class)}
+                            className={`px-2.5 py-1 rounded text-[10px] font-black uppercase border transition-all ${newColor === c.class ? 'border-gray-900 ring-2 ring-gray-200 scale-105' : 'border-gray-200 opacity-60'}`}
+                          >
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!newBankName || !newAccountTitle || !newAccountNumber || !newIban) {
+                            alert("Please fill Bank Name, Title, Account Number, and IBAN to add.");
+                            return;
+                          }
+                          const newAccount: BankAccount = {
+                            bank: newBankName,
+                            title: newAccountTitle,
+                            acc: newAccountNumber,
+                            iban: newIban,
+                            branch: newBranch || undefined,
+                            color: newColor
+                          };
+                          setBrandSettings({
+                            ...brandSettings,
+                            bankAccounts: [...(brandSettings.bankAccounts || []), newAccount]
+                          });
+                          // Clear fields
+                          setNewBankName('');
+                          setNewAccountTitle('');
+                          setNewAccountNumber('');
+                          setNewIban('');
+                          setNewBranch('');
+                        }}
+                        className="w-full py-2 bg-gray-900 hover:bg-black text-white rounded-lg text-xs font-black uppercase tracking-wider transition-colors"
+                      >
+                        + Append Bank Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab === 'whatsapp' && (
                 <>
                   <div>
                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">
@@ -572,7 +912,9 @@ export const Admin = () => {
                     </div>
                   </div>
                 </>
-              ) : (
+              )}
+
+              {settingsTab === 'promo' && (
                 <>
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                     <div>
@@ -633,13 +975,81 @@ export const Admin = () => {
                 </>
               )}
 
-              <button 
-                onClick={handleSaveSettings}
-                disabled={loading}
-                className="w-full py-4 bg-brand-blue text-white rounded-xl font-black flex items-center justify-center gap-2 hover:shadow-xl transition-all shadow-lg shadow-blue-200"
-              >
-                {loading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save Settings</>}
-              </button>
+              {settingsTab === 'backup' && (
+                <div className="space-y-8 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                  {/* Export Section */}
+                  <div>
+                    <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Download size={18} className="text-brand-blue" /> Backup Store Data
+                    </h4>
+                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                      Download a single JSON file containing all products, categories, active promotions, WhatsApp message templates, and brand information. Use this to restore your shop's setup at any time.
+                    </p>
+                    <button 
+                      onClick={handleExportBackup}
+                      className="w-full py-4 bg-brand-blue text-white rounded-xl font-black flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+                    >
+                      <Download size={20} /> Export System Backup (.json)
+                    </button>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-200"></div>
+
+                  {/* Import Section */}
+                  <div>
+                    <h4 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-2 flex items-center gap-2">
+                      <Upload size={18} className="text-green-600" /> Restore Point (Import Backup)
+                    </h4>
+                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                      Restore your application state by uploading a previously downloaded backup JSON file. <strong>Warning:</strong> This will bulk upsert all imported products and completely overwrite your current configurations.
+                    </p>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:bg-gray-100/50 transition-colors relative overflow-hidden">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 mb-3 text-gray-400" />
+                            <p className="text-xs text-gray-500 font-bold uppercase tracking-wide">
+                              {backupFile ? backupFile.name : "Select backup JSON file"}
+                            </p>
+                          </div>
+                          <input 
+                            type="file" 
+                            accept=".json" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setBackupFile(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+
+                      {backupFile && (
+                        <button 
+                          onClick={handleImportBackup}
+                          disabled={backupImporting}
+                          className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-black flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-100 disabled:opacity-50"
+                        >
+                          {backupImporting ? <Loader2 className="animate-spin" /> : <><Upload size={20} /> Restore Point Now</>}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab !== 'backup' && (
+                <button 
+                  onClick={handleSaveSettings}
+                  disabled={loading}
+                  className="w-full py-4 bg-brand-blue text-white rounded-xl font-black flex items-center justify-center gap-2 hover:shadow-xl transition-all shadow-lg shadow-blue-200"
+                >
+                  {loading ? <Loader2 className="animate-spin" /> : <><Save size={20} /> Save Settings</>}
+                </button>
+              )}
             </div>
           </motion.div>
         </div>

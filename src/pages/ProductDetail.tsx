@@ -6,12 +6,15 @@ import { Product } from '../types';
 import { formatPrice, getWhatsAppUrl } from '../lib/utils';
 import { ShoppingCart, Share2, ArrowLeft, ShieldCheck, Zap, RotateCcw, PackageCheck } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useSettings } from '../context/SettingsContext';
 
 import ReactMarkdown from 'react-markdown';
 
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const { brandSettings, whatsappSettings: ctxWhatsappSettings } = useSettings();
+  const { businessName } = brandSettings;
   const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState<string>('');
@@ -19,23 +22,22 @@ export const ProductDetail = () => {
   useEffect(() => {
     if (id) {
       Promise.all([
-        productService.getProductById(id),
-        settingsService.getWhatsAppSettings()
-      ]).then(([prod, settings]) => {
+        productService.getProductById(id)
+      ]).then(([prod]) => {
         setProduct(prod);
-        setWhatsappSettings(settings);
+        setWhatsappSettings(ctxWhatsappSettings);
         if (prod) {
           setActiveImage(prod.image);
-          document.title = `${prod.name} | Fahad Electronics`;
+          document.title = `${prod.name} | ${businessName}`;
         }
         setLoading(false);
       });
     }
 
     return () => {
-      document.title = 'Fahad Electronics | Premium Home Appliances';
+      document.title = `${businessName} | Premium Home Appliances`;
     };
-  }, [id]);
+  }, [id, ctxWhatsappSettings, businessName]);
 
   if (loading) {
     return (

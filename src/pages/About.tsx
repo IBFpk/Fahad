@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, ShieldCheck, Award, Users, ArrowRight } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { motion } from 'motion/react';
-import { settingsService, WhatsAppSettings } from '../services/settingsService';
+import { useSettings } from '../context/SettingsContext';
+import { cn } from '../lib/utils';
 
 export const About = () => {
-  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
-
-  useEffect(() => {
-    settingsService.getWhatsAppSettings().then(setWhatsappSettings);
-  }, []);
+  const { brandSettings } = useSettings();
+  const { businessName, businessSub, description, address, phone, email, bankAccounts } = brandSettings;
 
   const businessHours = [
     { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
@@ -35,7 +33,7 @@ export const About = () => {
               Leading the Way in <span className="text-brand-blue">Electronic Excellence</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Established with a vision to provide Karachi with the highest quality home appliances and corporate cooling solutions. 
+              {description}
             </p>
           </motion.div>
         </div>
@@ -82,20 +80,9 @@ export const About = () => {
                     <MapPin size={24} />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 mb-1">Retail Outlet</h4>
+                    <h4 className="font-bold text-gray-900 mb-1">Business Address</h4>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      Shop # L-41, Hashoo Center, A.H. Road, Saddar, Karachi.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-brand-red flex-shrink-0">
-                    <MapPin size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900 mb-1">Corporate Office</h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      # 17, Beauty House, Abdullah Haroon Road, Saddar, Karachi. Near Bank Of Punjab.
+                      {address}
                     </p>
                   </div>
                 </div>
@@ -105,14 +92,18 @@ export const About = () => {
             <div>
               <h2 className="text-3xl font-black mb-6 uppercase tracking-tight">Contact Info</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="tel:02132761001" className="flex items-center gap-4 p-5 bg-blue-50 text-brand-blue rounded-2xl hover:bg-blue-100 transition-colors">
-                  <Phone size={20} />
-                  <span className="font-semibold text-sm">021-32761001</span>
-                </a>
-                <a href="mailto:farhanmalikfahadelectronic@gmail.com" className="flex items-center gap-4 p-5 bg-red-50 text-brand-red rounded-2xl hover:bg-red-100 transition-colors">
-                  <Mail size={20} />
-                  <span className="font-semibold text-sm truncate">farhanmalikfahadelectronic@gmail.com</span>
-                </a>
+                {phone && (
+                  <a href={`tel:${phone}`} className="flex items-center gap-4 p-5 bg-blue-50 text-brand-blue rounded-2xl hover:bg-blue-100 transition-colors">
+                    <Phone size={20} />
+                    <span className="font-semibold text-sm">{phone}</span>
+                  </a>
+                )}
+                {email && (
+                  <a href={`mailto:${email}`} className="flex items-center gap-4 p-5 bg-red-50 text-brand-red rounded-2xl hover:bg-red-100 transition-colors">
+                    <Mail size={20} />
+                    <span className="font-semibold text-sm truncate">{email}</span>
+                  </a>
+                )}
               </div>
             </div>
 
@@ -170,94 +161,7 @@ export const About = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {[
-              {
-                bank: "Meezan Bank",
-                title: "Fahad Electronics",
-                acc: "01530104382610",
-                iban: "PK41MEZN0001530104382610",
-                branch: "Abdullah Haroon Road KHI",
-                color: "bg-purple-50 border-purple-200"
-              },
-              {
-                bank: "Meezan Bank",
-                title: "Fahad",
-                acc: "01530100532611",
-                iban: "PK61MEZN0001530100532611",
-                branch: "Abdullah Haroon Road KHI",
-                color: "bg-purple-100/50 border-purple-200"
-              },
-              {
-                bank: "JS BANK",
-                title: "MUHAMMAD FAISAL RAZA",
-                acc: "9606 0000 0056 6747",
-                iban: "PK89 JSBL 9606 0000 0056 6747",
-                color: "bg-yellow-50 border-yellow-200"
-              },
-              {
-                bank: "Askari Bank",
-                title: "Fahad",
-                acc: "0007 2602 0000 0311",
-                iban: "PK86 ASCM 0007 2602 0000 0311",
-                color: "bg-blue-50 border-blue-200"
-              },
-              {
-                bank: "Faysal Bank",
-                title: "Fahad Electronics",
-                acc: "3485 3010 0000 1047",
-                iban: "PK33 FAYS 3485 3010 0000 1047",
-                color: "bg-blue-100/50 border-blue-200"
-              },
-              {
-                bank: "Bank AL Habib Limited",
-                title: "MUHAMMAD FAISAL RAZA",
-                acc: "5056 0081 0001 2001",
-                iban: "PK02 BAHL 5056 0081 0001 2001",
-                color: "bg-green-100/50 border-green-200"
-              },
-              {
-                bank: "HABIBMETRO",
-                title: "Fahad Electronics",
-                acc: "0120 02714019 7032",
-                iban: "PK31MPBL 0120 02714019 7032",
-                color: "bg-green-50 border-green-200"
-              },
-              {
-                bank: "Summit Bank",
-                title: "Fahad Electronics",
-                acc: "2160 2714 0118 013",
-                iban: "PK91SUMB 0216 027140118013",
-                color: "bg-orange-50 border-orange-200"
-              },
-              {
-                bank: "Bank Alfalah",
-                title: "FAHAD ELECTRONICS",
-                acc: "00151009017819",
-                iban: "PK97ALFH0015001009017819",
-                color: "bg-red-50 border-red-200"
-              },
-              {
-                bank: "HBL",
-                title: "Fahad Electronics",
-                acc: "0000347900919903",
-                iban: "PK84 HABB 0000347900919903",
-                color: "bg-green-50 border-green-200"
-              },
-              {
-                bank: "BankIslami",
-                title: "Fahad Electronics",
-                acc: "0108600227300001",
-                iban: "PK86BKIP 0108600227300001",
-                color: "bg-blue-50 border-blue-200"
-              },
-              {
-                bank: "UBL",
-                title: "Fahad Electronics",
-                acc: "0109000303443238",
-                iban: "PK88UNIL0109000303443238",
-                color: "bg-cyan-50 border-cyan-200"
-              }
-            ].map((account, index) => (
+            {(bankAccounts && bankAccounts.length > 0 ? bankAccounts : []).map((account, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -265,7 +169,7 @@ export const About = () => {
                 transition={{ delay: index * 0.05 }}
                 className={cn(
                   "p-8 rounded-3xl border-2 transition-all hover:shadow-lg relative overflow-hidden",
-                  account.color
+                  account.color || "bg-blue-50 border-blue-200"
                 )}
               >
                 <div className="relative z-10">
@@ -308,5 +212,3 @@ export const About = () => {
     </div>
   );
 };
-
-import { cn } from '../lib/utils';

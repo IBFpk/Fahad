@@ -6,6 +6,7 @@ import { Product, Category } from '../types';
 import { Search, SlidersHorizontal, Package, ArrowRight, Zap, ShieldCheck, Heart, ChevronDown, X, ArrowUpDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
+import { useSettings } from '../context/SettingsContext';
 
 type SortOption = 
   | 'featured'
@@ -27,6 +28,9 @@ const sortLabels: Record<SortOption, string> = {
 };
 
 export const Home = () => {
+  const { brandSettings, whatsappSettings: ctxWhatsappSettings } = useSettings();
+  const { businessName, businessSub, description } = brandSettings;
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings | null>(null);
@@ -39,18 +43,17 @@ export const Home = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const [prodRes, catRes, whatsappRes] = await Promise.all([
+      const [prodRes, catRes] = await Promise.all([
         productService.getProducts(),
-        productService.getCategories(),
-        settingsService.getWhatsAppSettings()
+        productService.getCategories()
       ]);
       setProducts(prodRes);
       setCategories(catRes);
-      setWhatsappSettings(whatsappRes);
+      setWhatsappSettings(ctxWhatsappSettings);
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [ctxWhatsappSettings]);
 
   const filteredProducts = products.filter(p => {
     const query = searchQuery.toLowerCase();
@@ -112,13 +115,13 @@ export const Home = () => {
             className="max-w-2xl"
           >
             <span className="inline-block px-4 py-1 bg-brand-red text-white text-xs font-bold tracking-widest rounded-full mb-6 uppercase">
-              Premier Electronics Store
+              {businessSub || "Welcome to our store"}
             </span>
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.1]">
-              Upgrade Your <span className="text-brand-red underline decoration-8 underline-offset-8">Lifestyle</span>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-[1.1] uppercase">
+              {businessName}
             </h1>
             <p className="text-xl text-blue-100 mb-10 leading-relaxed max-w-lg">
-              Explore the latest in cooling, entertainment, and home appliances with Fahad Electronics. Quality guaranteed.
+              {description}
             </p>
             {/* Removed Hero Buttons */}
           </motion.div>

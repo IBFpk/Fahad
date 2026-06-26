@@ -10,21 +10,24 @@ import { About } from './pages/About';
 import { ProductDetail } from './pages/ProductDetail';
 import { Admin } from './pages/Admin';
 import { ScrollToTop } from './components/ScrollToTop';
+import { SettingsProvider } from './context/SettingsContext';
 
 export default function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/admin" element={<Admin />} />
-          {/* Simple contact route redirects to about for now */}
-          <Route path="/contact" element={<About />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <SettingsProvider>
+      <Router>
+        <ScrollToTop />
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/admin" element={<Admin />} />
+            {/* Simple contact route redirects to about for now */}
+            <Route path="/contact" element={<About />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </SettingsProvider>
   );
 }

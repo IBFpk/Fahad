@@ -4,23 +4,26 @@ import { formatPrice, getWhatsAppUrl } from '../lib/utils';
 import { ShoppingCart, Share2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
-
-import { settingsService, WhatsAppSettings } from '../services/settingsService';
+import { useSettings } from '../context/SettingsContext';
 
 interface ProductCardProps {
   product: Product;
-  whatsappSettings?: WhatsAppSettings | null;
+  whatsappSettings?: any; // Kept for backward compatibility, but we prefer useSettings
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSettings }) => {
-    const productUrl = window.location.href.split('#')[0] + '#/product/' + product.id;
-    const whatsappMsg = whatsappSettings 
+export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSettings: propWhatsappSettings }) => {
+  const { brandSettings, whatsappSettings: ctxWhatsappSettings } = useSettings();
+  const whatsappSettings = propWhatsappSettings || ctxWhatsappSettings;
+  const businessName = brandSettings.businessName;
+
+  const productUrl = window.location.href.split('#')[0] + '#/product/' + product.id;
+  const whatsappMsg = whatsappSettings 
     ? whatsappSettings.whatsappTemplate
         .replace(/{{item_title}}/g, product.name)
         .replace(/{{brand}}/g, product.brand || '')
         .replace(/{{price}}/g, formatPrice(product.price))
         .replace(/{{item_url}}/g, productUrl)
-    : `Hi Fahad Electronics, I'm interested in ${product.brand ? `[${product.brand}] ` : ''}${product.name} (Price: ${formatPrice(product.price)}). View: ${productUrl}`;
+    : `Hi ${businessName}, I'm interested in ${product.brand ? `[${product.brand}] ` : ''}${product.name} (Price: ${formatPrice(product.price)}). View: ${productUrl}`;
 
   const whatsappNumber = whatsappSettings?.whatsapp || "923350237370";
   const whatsappUrl = getWhatsAppUrl(whatsappNumber, whatsappMsg);
@@ -29,7 +32,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, whatsappSetti
     const productUrl = window.location.origin + window.location.pathname + '#/product/' + product.id;
     e.preventDefault();
     
-    const msg = (whatsappSettings?.shareTemplate || 'Check out this amazing product from Fahad Electronics!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}')
+    const msg = (whatsappSettings?.shareTemplate || `Check out this amazing product from ${businessName}!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}`)
       .replace(/{{item_title}}/g, product.name)
       .replace(/{{brand}}/g, product.brand || '')
       .replace(/{{price}}/g, formatPrice(product.price))
