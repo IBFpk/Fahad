@@ -63,6 +63,7 @@ export const Admin = () => {
     twitterUrl: '',
     logoType: 'icon',
     logoUrl: '',
+    ogImageUrl: '',
     bankAccounts: []
   });
 
@@ -744,6 +745,19 @@ export const Admin = () => {
                         />
                       </div>
                     )}
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">WhatsApp / Social Share Preview Image (OG Image URL)</label>
+                    <input 
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all text-sm"
+                      value={brandSettings.ogImageUrl || ''}
+                      onChange={e => setBrandSettings({...brandSettings, ogImageUrl: e.target.value})}
+                      placeholder="e.g. https://example.com/share-banner.jpg"
+                    />
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      This image will appear in the preview box when you share your website link on WhatsApp, Facebook, or Twitter. Recommended size: 1200x630px. If left empty, it will automatically fall back to your custom logo image or standard banner.
+                    </p>
                   </div>
 
                   {/* GOOGLE MAPS SETTINGS */}

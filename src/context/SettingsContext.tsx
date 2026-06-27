@@ -67,6 +67,30 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const twitterDescription = document.querySelector('meta[property="twitter:description"]');
       if (twitterDescription) twitterDescription.setAttribute('content', desc);
 
+      // Open Graph Image Sync (WhatsApp/Social Share)
+      const defaultOgImage = 'https://lh3.googleusercontent.com/d/16tFR0xRBzwAjyhyD0o6UWSH2SOCm1lv5';
+      const currentOgImage = brandSettings.ogImageUrl || (brandSettings.logoType === 'custom_image' && brandSettings.logoUrl ? brandSettings.logoUrl : defaultOgImage);
+
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) {
+        ogImage.setAttribute('content', currentOgImage);
+      } else {
+        const newOgImage = document.createElement('meta');
+        newOgImage.setAttribute('property', 'og:image');
+        newOgImage.setAttribute('content', currentOgImage);
+        document.head.appendChild(newOgImage);
+      }
+
+      const twitterImage = document.querySelector('meta[property="twitter:image"]');
+      if (twitterImage) {
+        twitterImage.setAttribute('content', currentOgImage);
+      } else {
+        const newTwitterImage = document.createElement('meta');
+        newTwitterImage.setAttribute('property', 'twitter:image');
+        newTwitterImage.setAttribute('content', currentOgImage);
+        document.head.appendChild(newTwitterImage);
+      }
+
       // Favicon Sync
       let favicon = document.querySelector('link[rel="icon"]');
       if (!favicon) {

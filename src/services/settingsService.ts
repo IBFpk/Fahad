@@ -43,6 +43,7 @@ export interface BrandSettings {
   bankAccounts: BankAccount[];
   mapQuery?: string;
   businessHours?: BusinessHour[];
+  ogImageUrl?: string;
 }
 
 const WHATSAPP_DOC_ID = 'whatsapp';
@@ -96,6 +97,7 @@ export const settingsService = {
       twitterUrl: '#',
       logoType: 'icon',
       logoUrl: '',
+      ogImageUrl: '',
       bankAccounts: [
         {
           bank: "Meezan Bank",
