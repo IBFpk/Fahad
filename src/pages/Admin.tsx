@@ -315,8 +315,9 @@ export const Admin = () => {
       refreshSettings();
       setShowSettings(false);
       alert("Settings saved successfully!");
-    } catch (err) {
-      alert("Failed to save settings.");
+    } catch (err: any) {
+      console.error("Failed to save settings", err);
+      alert("Failed to save settings: " + (err?.message || err));
     } finally {
       setLoading(false);
     }

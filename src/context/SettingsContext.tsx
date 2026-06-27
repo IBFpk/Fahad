@@ -46,6 +46,29 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fetchAllSettings();
   }, []);
 
+  useEffect(() => {
+    if (brandSettings && brandSettings.businessName) {
+      document.title = `${brandSettings.businessName} | ${brandSettings.businessSub || 'Premium Store'}`;
+      
+      const desc = brandSettings.description || 'Premium home appliances and electronics store.';
+      
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) metaDescription.setAttribute('content', desc);
+      
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', `${brandSettings.businessName} | ${brandSettings.businessSub || 'Premium Store'}`);
+      
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      if (ogDescription) ogDescription.setAttribute('content', desc);
+
+      const twitterTitle = document.querySelector('meta[property="twitter:title"]');
+      if (twitterTitle) twitterTitle.setAttribute('content', `${brandSettings.businessName} | ${brandSettings.businessSub || 'Premium Store'}`);
+
+      const twitterDescription = document.querySelector('meta[property="twitter:description"]');
+      if (twitterDescription) twitterDescription.setAttribute('content', desc);
+    }
+  }, [brandSettings]);
+
   return (
     <SettingsContext.Provider value={{
       brandSettings,

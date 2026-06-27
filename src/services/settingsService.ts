@@ -168,7 +168,8 @@ export const settingsService = {
 
   async updateBrandSettings(settings: BrandSettings): Promise<void> {
     const docRef = doc(db, 'settings', BRAND_DOC_ID);
-    await setDoc(docRef, settings, { merge: true });
+    const sanitized = JSON.parse(JSON.stringify(settings));
+    await setDoc(docRef, sanitized, { merge: true });
   },
   async getWhatsAppSettings(): Promise<WhatsAppSettings> {
     try {
@@ -194,7 +195,8 @@ export const settingsService = {
 
   async updateWhatsAppSettings(settings: WhatsAppSettings): Promise<void> {
     const docRef = doc(db, 'settings', WHATSAPP_DOC_ID);
-    await setDoc(docRef, settings, { merge: true });
+    const sanitized = JSON.parse(JSON.stringify(settings));
+    await setDoc(docRef, sanitized, { merge: true });
   },
 
   async getPromotionSettings(): Promise<PromotionSettings> {
@@ -221,6 +223,7 @@ export const settingsService = {
 
   async updatePromotionSettings(settings: PromotionSettings): Promise<void> {
     const docRef = doc(db, 'settings', PROMO_DOC_ID);
-    await setDoc(docRef, settings, { merge: true });
+    const sanitized = JSON.parse(JSON.stringify(settings));
+    await setDoc(docRef, sanitized, { merge: true });
   }
 };
