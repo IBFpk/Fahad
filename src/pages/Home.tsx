@@ -84,11 +84,10 @@ export const Home = () => {
     }
   });
 
-  // Extract unique categories from products to ensure all used categories are shown
-  const allCategories = Array.from(new Set([
-    ...categories.map(c => c.name),
-    ...products.map(p => p.category)
-  ])).filter(Boolean).sort();
+  // Extract unique categories from products to ensure only categories with products are shown
+  const allCategories = Array.from(new Set(
+    products.map(p => p.category)
+  )).filter(Boolean).sort();
 
   const allBrands = Array.from(new Set(
     products.map(p => p.brand).filter(Boolean)

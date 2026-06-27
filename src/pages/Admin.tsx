@@ -1170,11 +1170,58 @@ export const Admin = () => {
 
               <div>
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Category</label>
-                <input list="cats" required className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} />
-                <datalist id="cats">
-                  {categories.map(c => <option key={c.id} value={c.name} />)}
-                  <option value="Split AC" /><option value="Refrigerator" /><option value="LED TV" /><option value="Washing Machine" />
-                </datalist>
+                <div className="relative">
+                  <select 
+                    required={!formData.category}
+                    className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none appearance-none border border-transparent focus:ring-2 focus:ring-brand-blue text-sm cursor-pointer pr-10"
+                    value={
+                      categories.some(c => c.name.trim().toLowerCase() === formData.category?.trim().toLowerCase()) 
+                        ? categories.find(c => c.name.trim().toLowerCase() === formData.category?.trim().toLowerCase())?.name 
+                        : (formData.category ? 'custom' : '')
+                    }
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (val === 'custom') {
+                        setFormData({...formData, category: ''});
+                      } else {
+                        setFormData({...formData, category: val});
+                      }
+                    }}
+                  >
+                    <option value="">-- Select Category --</option>
+                    {/* Unique sorted list of categories */}
+                    {Array.from(new Set([
+                      ...categories.map(c => c.name.trim()),
+                      "Split AC", "Refrigerator", "LED TV", "Washing Machine"
+                    ])).sort().map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                    <option value="custom" className="font-bold text-brand-blue">+ Create Custom Category...</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                  </div>
+                </div>
+
+                {/* If custom is selected, or if the input doesn't match any of the standard categories */}
+                {(!Array.from(new Set([
+                  ...categories.map(c => c.name.trim().toLowerCase()),
+                  "split ac", "refrigerator", "led tv", "washing machine"
+                ])).includes(formData.category?.trim().toLowerCase()) || formData.category === '') && (
+                  <div className="mt-3 animate-fadeIn">
+                    <label className="text-[10px] font-black text-brand-blue uppercase tracking-widest mb-1 block">Custom Category Name</label>
+                    <input 
+                      type="text"
+                      placeholder="Type your new category name..."
+                      required
+                      className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none border border-gray-200 text-sm focus:ring-2 focus:ring-brand-blue"
+                      value={formData.category}
+                      onChange={e => setFormData({...formData, category: e.target.value})}
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
