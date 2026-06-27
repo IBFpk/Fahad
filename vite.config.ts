@@ -5,8 +5,8 @@ import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
-  // Use root base for development/preview, and /Fahad/ for production deployment
-  const base = mode === 'production' ? '/Fahad/' : '/';
+  // Use root base '/' for production deployment on Netlify
+  const base = '/';
 
   return {
     base,
