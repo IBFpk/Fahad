@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="text/javascript">
+      try {
+        var cached = localStorage.getItem('cached_brand_settings');
+        if (cached) {
+          var settings = JSON.parse(cached);
+          if (settings && settings.businessName) {
+            document.title = settings.businessName + " | " + (settings.businessSub || 'Premium Store');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    </script>
     <title>Fahad Electronics | Premium Home Appliances</title>
     <meta name="description" content="Shop the latest home appliances, LED TVs, refrigerators, and air conditioners at Fahad Electronics. Premium Quality, Trusted Service." />
     

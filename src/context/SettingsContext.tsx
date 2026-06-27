@@ -12,16 +12,46 @@ interface SettingsContextType {
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => settingsService.getDefaultBrandSettings());
-  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings>({
-    whatsapp: '923350237370',
-    whatsappTemplate: 'Salam! I am interested in this product from {{brand_name}}:\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
-    shareTemplate: 'Check out this amazing product from {{brand_name}}!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
+  const [brandSettings, setBrandSettings] = useState<BrandSettings>(() => {
+    try {
+      const cached = localStorage.getItem('cached_brand_settings');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error('Failed to parse cached brand settings', e);
+    }
+    return settingsService.getDefaultBrandSettings();
   });
-  const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>({
-    active: false,
-    text: '',
-    type: 'info'
+  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppSettings>(() => {
+    try {
+      const cached = localStorage.getItem('cached_whatsapp_settings');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error('Failed to parse cached whatsapp settings', e);
+    }
+    return {
+      whatsapp: '923350237370',
+      whatsappTemplate: 'Salam! I am interested in this product from {{brand_name}}:\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\n{{item_url}}\n\nIs this still available in stock?',
+      shareTemplate: 'Check out this amazing product from {{brand_name}}!\n\n*{{item_title}}*\nBrand: *{{brand}}*\nPrice: *{{price}}*\n\nView details: {{item_url}}'
+    };
+  });
+  const [promotionSettings, setPromotionSettings] = useState<PromotionSettings>(() => {
+    try {
+      const cached = localStorage.getItem('cached_promotion_settings');
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (e) {
+      console.error('Failed to parse cached promotion settings', e);
+    }
+    return {
+      active: false,
+      text: '',
+      type: 'info'
+    };
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,6 +65,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setBrandSettings(brand);
       setWhatsappSettings(wa);
       setPromotionSettings(promo);
+
+      try {
+        localStorage.setItem('cached_brand_settings', JSON.stringify(brand));
+        localStorage.setItem('cached_whatsapp_settings', JSON.stringify(wa));
+        localStorage.setItem('cached_promotion_settings', JSON.stringify(promo));
+      } catch (e) {
+        console.error('Failed to save settings to localStorage cache', e);
+      }
     } catch (error) {
       console.error('Error fetching settings in context', error);
     } finally {
