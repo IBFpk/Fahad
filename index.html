@@ -8,32 +8,65 @@
         var cached = localStorage.getItem('cached_brand_settings');
         if (cached) {
           var settings = JSON.parse(cached);
-          if (settings && settings.businessName) {
-            document.title = settings.businessName + " | " + (settings.businessSub || 'Premium Store');
+          if (settings) {
+            var name = settings.businessName || 'Premium Store';
+            var sub = settings.businessSub || 'Quality & Service';
+            var desc = settings.description || 'Discover a wide range of premium products and home appliances.';
+            
+            // Set document title
+            document.title = name + " | " + sub;
+            
+            // Update other metadata tags dynamically
+            var descTag = document.querySelector('meta[name="description"]');
+            if (descTag) descTag.setAttribute('content', desc);
+            
+            var ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) ogTitle.setAttribute('content', name + " | " + sub);
+            
+            var ogDesc = document.querySelector('meta[property="og:description"]');
+            if (ogDesc) ogDesc.setAttribute('content', desc);
+            
+            var ogSiteName = document.querySelector('meta[property="og:site_name"]');
+            if (ogSiteName) ogSiteName.setAttribute('content', name);
+            
+            var twitterTitle = document.querySelector('meta[property="twitter:title"]');
+            if (twitterTitle) twitterTitle.setAttribute('content', name + " | " + sub);
+            
+            var twitterDesc = document.querySelector('meta[property="twitter:description"]');
+            if (twitterDesc) twitterDesc.setAttribute('content', desc);
+
+            var defaultOgImage = 'https://lh3.googleusercontent.com/d/16tFR0xRBzwAjyhyD0o6UWSH2SOCm1lv5';
+            var ogImgUrl = settings.ogImageUrl || (settings.logoType === 'custom_image' && settings.logoUrl ? settings.logoUrl : defaultOgImage);
+            
+            var ogImg = document.querySelector('meta[property="og:image"]');
+            if (ogImg) ogImg.setAttribute('content', ogImgUrl);
+            
+            var twImg = document.querySelector('meta[property="twitter:image"]');
+            if (twImg) twImg.setAttribute('content', ogImgUrl);
           }
         }
       } catch (e) {
         console.error(e);
       }
     </script>
-    <title>Fahad Electronics | Premium Home Appliances</title>
-    <meta name="description" content="Shop the latest home appliances, LED TVs, refrigerators, and air conditioners at Fahad Electronics. Premium Quality, Trusted Service." />
+    <title>Premium Store</title>
+    <meta name="description" content="Shop premium appliances and high quality electronics. Premium Quality, Trusted Service." />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://fahadelectronics.pk/" />
-    <meta property="og:site_name" content="Fahad Electronics" />
-    <meta property="og:title" content="Fahad Electronics | Premium Home Appliances in Pakistan" />
-    <meta property="og:description" content="Shop the latest home appliances, LED TVs, refrigerators, and air conditioners at Fahad Electronics. Experience premium quality and trusted service." />
+    <meta property="og:url" content="" />
+    <meta property="og:site_name" content="Premium Store" />
+    <meta property="og:title" content="Premium Store | Quality & Service" />
+    <meta property="og:description" content="Shop premium appliances and high quality electronics. Premium Quality, Trusted Service." />
     <meta property="og:image" content="https://lh3.googleusercontent.com/d/16tFR0xRBzwAjyhyD0o6UWSH2SOCm1lv5" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="600" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://fahadelectronics.pk/" />
-    <meta property="twitter:title" content="Fahad Electronics | Premium Home Appliances" />
-    <meta property="twitter:description" content="Shop the latest home appliances, LED TVs, refrigerators, and air conditioners at Fahad Electronics. Premium Quality, Trusted Service." />
+    <meta property="twitter:url" content="" />
+    <meta property="twitter:title" content="Premium Store | Quality & Service" />
+    <meta property="twitter:description" content="Shop premium appliances and high quality electronics. Premium Quality, Trusted Service." />
     <meta property="twitter:image" content="https://lh3.googleusercontent.com/d/16tFR0xRBzwAjyhyD0o6UWSH2SOCm1lv5" />
 
     <script type="text/javascript">

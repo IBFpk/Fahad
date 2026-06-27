@@ -53,7 +53,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       type: 'info'
     };
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_brand_settings');
+      return !cached;
+    } catch (e) {
+      return true;
+    }
+  });
 
   const fetchAllSettings = async () => {
     try {
