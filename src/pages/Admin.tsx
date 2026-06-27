@@ -746,6 +746,83 @@ export const Admin = () => {
                     )}
                   </div>
 
+                  {/* GOOGLE MAPS SETTINGS */}
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4">Google Maps Location</h3>
+                    <div>
+                      <label className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1 block">Map Search Query / Address</label>
+                      <input 
+                        className="w-full px-4 py-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-brand-blue transition-all text-sm"
+                        value={brandSettings.mapQuery || ''}
+                        onChange={e => setBrandSettings({...brandSettings, mapQuery: e.target.value})}
+                        placeholder="e.g. Hashoo Center Saddar Karachi"
+                      />
+                      <p className="text-[10px] text-gray-400 mt-1">This query is used to load the interactive Google map on the About page. You can enter an address, shop name, or coordinates.</p>
+                    </div>
+                  </div>
+
+                  {/* BUSINESS HOURS SECTION */}
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4">Business Hours</h3>
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
+                        const hoursList = brandSettings.businessHours || [
+                          { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
+                          { day: 'Tuesday', hours: '11:00 AM - 9:00 PM' },
+                          { day: 'Wednesday', hours: '11:00 AM - 9:00 PM' },
+                          { day: 'Thursday', hours: '11:00 AM - 9:00 PM' },
+                          { day: 'Friday', hours: '11:00 AM - 9:00 PM (Closed 1-2 PM)' },
+                          { day: 'Saturday', hours: '11:00 AM - 9:00 PM' },
+                          { day: 'Sunday', hours: 'Closed' }
+                        ];
+                        const dayObj = hoursList.find(h => h.day === day) || { day, hours: '' };
+                        return (
+                          <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/50 pb-2 last:border-0 last:pb-0">
+                            <span className="text-xs font-bold text-gray-700 w-24 uppercase tracking-wider">{day}</span>
+                            <div className="flex gap-2 flex-1">
+                              <input 
+                                className="flex-1 px-3 py-1.5 bg-white rounded-lg outline-none border border-gray-200 text-xs focus:ring-1 focus:ring-brand-blue"
+                                value={dayObj.hours}
+                                onChange={e => {
+                                  const updatedHours = hoursList.map(h => {
+                                    if (h.day === day) {
+                                      return { ...h, hours: e.target.value };
+                                    }
+                                    return h;
+                                  });
+                                  const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                                  const finalHours = allDays.map(d => {
+                                    const existing = updatedHours.find(h => h.day === d);
+                                    if (existing) return existing;
+                                    const def = hoursList.find(h => h.day === d) || { day: d, hours: '11:00 AM - 9:00 PM' };
+                                    return d === day ? { day: d, hours: e.target.value } : def;
+                                  });
+                                  setBrandSettings({...brandSettings, businessHours: finalHours});
+                                }}
+                                placeholder="e.g. 11:00 AM - 9:00 PM or Closed"
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  const updatedHours = hoursList.map(h => {
+                                    if (h.day === day) {
+                                      return { ...h, hours: 'Closed' };
+                                    }
+                                    return h;
+                                  });
+                                  setBrandSettings({...brandSettings, businessHours: updatedHours});
+                                }}
+                                className="px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-[10px] font-black uppercase transition-colors"
+                              >
+                                Closed
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   {/* BANK ACCOUNTS SECTION */}
                   <div className="border-t border-gray-100 pt-6">
                     <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider mb-4">Bank Accounts for Payments</h3>

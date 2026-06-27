@@ -7,9 +7,9 @@ import { cn } from '../lib/utils';
 
 export const About = () => {
   const { brandSettings } = useSettings();
-  const { businessName, businessSub, description, address, phone, email, bankAccounts } = brandSettings;
+  const { businessName, businessSub, description, address, phone, email, bankAccounts, mapQuery, businessHours: storedBusinessHours } = brandSettings;
 
-  const businessHours = [
+  const defaultHours = [
     { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
     { day: 'Tuesday', hours: '11:00 AM - 9:00 PM' },
     { day: 'Wednesday', hours: '11:00 AM - 9:00 PM' },
@@ -18,6 +18,9 @@ export const About = () => {
     { day: 'Saturday', hours: '11:00 AM - 9:00 PM' },
     { day: 'Sunday', hours: 'Closed' },
   ];
+
+  const businessHours = storedBusinessHours || defaultHours;
+  const currentMapQuery = mapQuery || 'Hashoo Center Saddar Karachi';
 
   return (
     <div className="pb-20">
@@ -140,7 +143,7 @@ export const About = () => {
                 scrolling="no" 
                 marginHeight={0} 
                 marginWidth={0} 
-                src="https://maps.google.com/maps?q=Hashoo%20Center%20Saddar%20Karachi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(currentMapQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                 title="Business Location"
               />
             </div>

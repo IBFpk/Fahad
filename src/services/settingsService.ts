@@ -23,6 +23,11 @@ export interface BankAccount {
   color?: string;
 }
 
+export interface BusinessHour {
+  day: string;
+  hours: string;
+}
+
 export interface BrandSettings {
   businessName: string;
   businessSub: string;
@@ -36,6 +41,8 @@ export interface BrandSettings {
   logoUrl?: string;
   logoType?: 'icon' | 'custom_image';
   bankAccounts: BankAccount[];
+  mapQuery?: string;
+  businessHours?: BusinessHour[];
 }
 
 const WHATSAPP_DOC_ID = 'whatsapp';
@@ -52,6 +59,20 @@ export const settingsService = {
         // Make sure bankAccounts is always an array
         if (!data.bankAccounts) {
           data.bankAccounts = [];
+        }
+        if (!data.businessHours) {
+          data.businessHours = [
+            { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
+            { day: 'Tuesday', hours: '11:00 AM - 9:00 PM' },
+            { day: 'Wednesday', hours: '11:00 AM - 9:00 PM' },
+            { day: 'Thursday', hours: '11:00 AM - 9:00 PM' },
+            { day: 'Friday', hours: '11:00 AM - 9:00 PM (Closed 1-2 PM)' },
+            { day: 'Saturday', hours: '11:00 AM - 9:00 PM' },
+            { day: 'Sunday', hours: 'Closed' }
+          ];
+        }
+        if (data.mapQuery === undefined) {
+          data.mapQuery = 'Hashoo Center Saddar Karachi';
         }
         return data as BrandSettings;
       }
@@ -162,6 +183,16 @@ export const settingsService = {
           iban: "PK88UNIL0109000303443238",
           color: "bg-cyan-50 border-cyan-200"
         }
+      ],
+      mapQuery: 'Hashoo Center Saddar Karachi',
+      businessHours: [
+        { day: 'Monday', hours: '11:00 AM - 9:00 PM' },
+        { day: 'Tuesday', hours: '11:00 AM - 9:00 PM' },
+        { day: 'Wednesday', hours: '11:00 AM - 9:00 PM' },
+        { day: 'Thursday', hours: '11:00 AM - 9:00 PM' },
+        { day: 'Friday', hours: '11:00 AM - 9:00 PM (Closed 1-2 PM)' },
+        { day: 'Saturday', hours: '11:00 AM - 9:00 PM' },
+        { day: 'Sunday', hours: 'Closed' }
       ]
     };
   },
