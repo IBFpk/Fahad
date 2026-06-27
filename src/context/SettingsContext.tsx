@@ -66,6 +66,41 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       const twitterDescription = document.querySelector('meta[property="twitter:description"]');
       if (twitterDescription) twitterDescription.setAttribute('content', desc);
+
+      // Favicon Sync
+      let favicon = document.querySelector('link[rel="icon"]');
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.setAttribute('rel', 'icon');
+        document.head.appendChild(favicon);
+      }
+
+      let faviconShortcut = document.querySelector('link[rel="shortcut icon"]');
+      if (!faviconShortcut) {
+        faviconShortcut = document.createElement('link');
+        faviconShortcut.setAttribute('rel', 'shortcut icon');
+        document.head.appendChild(faviconShortcut);
+      }
+
+      if (brandSettings.logoType === 'custom_image' && brandSettings.logoUrl) {
+        favicon.setAttribute('href', brandSettings.logoUrl);
+        favicon.removeAttribute('type');
+        faviconShortcut.setAttribute('href', brandSettings.logoUrl);
+      } else {
+        const svgString = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+            <rect width="100" height="100" rx="20" fill="%231e3a8a"/>
+            <path d="M20 20 L30 20 L40 60 L80 60 L90 30 L35 30" fill="none" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="45" cy="80" r="8" fill="white" />
+            <circle cx="75" cy="80" r="8" fill="white" />
+            <path d="M45 45 L55 45 L60 35 L70 55 L75 45 L85 45" fill="none" stroke="white" stroke-width="4" />
+          </svg>
+        `.trim().replace(/\s+/g, ' ');
+        const svgUrl = `data:image/svg+xml,${encodeURIComponent(svgString)}`;
+        favicon.setAttribute('type', 'image/svg+xml');
+        favicon.setAttribute('href', svgUrl);
+        faviconShortcut.setAttribute('href', svgUrl);
+      }
     }
   }, [brandSettings]);
 
